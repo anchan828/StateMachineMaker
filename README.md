@@ -1,0 +1,4 @@
+StateMachine
+============
+
+RuntimeでもStateMachineをScriptからアクセスできるように
