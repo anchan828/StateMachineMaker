@@ -62,7 +62,7 @@ namespace Kyusyukeigo.StateMachine
         /// <param name="stateName">すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)</param>
         public S[] AddState(params string[] stateNames)
         {
-            List<S> _states = new List<S>();
+            var _states = new List<S>();
 
             foreach (var stateName in stateNames)
             {
@@ -153,6 +153,19 @@ namespace Kyusyukeigo.StateMachine
         public void RemoveTransition(int index)
         {
             transitions.RemoveAt(index);
+        }
+
+        /// <summary>
+        /// デフォルトを設定する
+        /// FIXME isDefaultがreadonlyではないのでどうにかする
+        /// </summary>
+        /// <param name="state"></param>
+        public void SetDefault(S state)
+        {
+            states.ForEach(s =>
+            {
+                s.isDefault = state.stateName == s.stateName;
+            });
         }
 
         /// <summary>

@@ -4,6 +4,9 @@ using UnityEditor;
 using UnityEditor.Graphs;
 using UnityEngine;
 
+/// <summary>
+/// FIXME 継承が気持ち悪いのでどうにかする...
+/// </summary>
 public class StateMachineWindow<M, S, T> : EditorWindow
     where M : StateMachine<S, T>
     where S : State
@@ -88,6 +91,11 @@ public class StateMachineWindow<M, S, T> : EditorWindow
         for (int index = 0; index < stateMachine.stateCount; index++)
         {
             S state = stateMachine.GetState(index);
+
+            Styles.Color color = state.isDefault ? Styles.Color.Orange : Styles.Color.Gray;
+            bool on = forcusedState == state;
+            GUIStyle nodeStyle = Styles.GetNodeStyle("node", color, @on);
+
             state.position = GUI.Window(index, state.position, (id) =>
             {
                 S _state = stateMachine.GetState(id);
@@ -100,7 +108,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 OnStateGUI(_state);
                 DisPlayStatePopupMenu(_state);
                 GUI.DragWindow(new Rect(0, 0, state.position.width, 20));
-            }, state.stateName);
+            }, state.stateName, nodeStyle);
         }
         EndWindows();
 
@@ -210,6 +218,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             var options = new GUIContent[]
             {
                 new GUIContent("Make Transition"),
+                new GUIContent("Set Default"), 
                 new GUIContent(""),
                 new GUIContent("Duplicate State"),
                 new GUIContent("Delete State"),  
@@ -240,6 +249,11 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 break;
             case "Add State":
                 stateMachine.AddState("Empty");
+                break;
+            case "Set Default":
+                state = userData as S;
+                if (state == null) return;
+                stateMachine.SetDefault(state);
                 break;
             case "Duplicate State":
                 state = userData as S;

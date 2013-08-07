@@ -4,14 +4,18 @@ using UnityEngine;
 namespace Kyusyukeigo.StateMachine
 {
     [Serializable]
-    public class State : ICloneable
+    public class State 
     {
         /// <summary>
         /// State名
         /// </summary>
         public string stateName;
 
-#if UNITY_EDITOR
+        /// <summary>
+        /// デフォルトの場合はtrueを返す
+        /// 必ずStateMachineにデフォルトは１つ
+        /// </summary>
+        public bool isDefault;
 
         /// <summary>
         /// EditorWindow上でStateを表示するときの大きさ
@@ -28,7 +32,5 @@ namespace Kyusyukeigo.StateMachine
         {
             return this.MemberwiseClone();
         }
-
-#endif
     }
 }
