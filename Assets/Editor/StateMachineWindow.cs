@@ -258,7 +258,9 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             case "Duplicate State":
                 state = userData as S;
                 if (state == null) return;
-                stateMachine.AddState((S)state.Clone());
+                S clone = (S)state.Clone();
+                clone.isDefault = false;
+                stateMachine.AddState(clone);
                 break;
             case "Delete State":
                 state = userData as S;
