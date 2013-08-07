@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Kyusyukeigo.StateMachine
 {
     [Serializable]
-    public class State 
+    public class State : System.Object
     {
         /// <summary>
         /// State名
