@@ -80,7 +80,7 @@ namespace Kyusyukeigo.StateMachine
         public S AddState(S state)
         {
             state.stateName = GetUniqName(state);
-            state.position = SetPosition(state.position);
+            state.position = GetPosition(state.position);
             states.Add(state);
             return state;
         }
@@ -247,14 +247,14 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// ユニークなRect値を設定します
         /// </summary>
-        private Rect SetPosition(Rect position)
+        private Rect GetPosition(Rect position)
         {
             Rect pos = new Rect(position);
             if (states.Count(state => (state.position.x == position.x) && (state.position.y == position.y)) != 0)
             {
                 pos.x += pos.width * 0.5f;
                 pos.y += pos.height * 0.5f;
-                return SetPosition(pos);
+                return GetPosition(pos);
             }
             return pos;
         }
