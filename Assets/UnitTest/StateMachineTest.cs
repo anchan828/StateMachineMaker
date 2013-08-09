@@ -89,15 +89,15 @@ public class StateMachineTest
     public void Transitionが追加されていることが確認できること()
     {
         Transition addTransition = stateMachine.AddTransition("from", "to");
-        Assert.True(stateMachine.HasTransition(addTransition.fromStateUniqID, addTransition.toStateNameUniqID));
+        Assert.True(stateMachine.HasTransitionFromUniqueID(addTransition.fromStateUniqueID, addTransition.toStateNameUniqueID));
     }
 
     [Test]
     public void Transition名が重複したときにユニークな名前になること()
     {
         Transition blendShapeTransition = stateMachine.AddTransition("from", "to");
-        Assert.AreEqual(blendShapeTransition.transitionName, "from-to");
+        Assert.AreEqual(blendShapeTransition.name, "from-to");
         blendShapeTransition = stateMachine.AddTransition("from", "to");
-        Assert.AreEqual(blendShapeTransition.transitionName, "from-to 1");
+        Assert.AreEqual(blendShapeTransition.name, "from-to 1");
     }
 }

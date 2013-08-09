@@ -19,9 +19,8 @@ namespace Kyusyukeigo.StateMachine
 
         /// <summary>
         /// ユニークID
-        /// 今のところDateTime
         /// </summary>
-        public long uniqID;
+        public int uniqueID;
 
         /// <summary>
         /// EditorWindow上でStateを表示するときの大きさ

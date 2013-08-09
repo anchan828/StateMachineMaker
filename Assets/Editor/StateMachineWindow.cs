@@ -49,23 +49,33 @@ public class StateMachineWindow<M, S, T> : EditorWindow
 
         string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
         Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-
         foreach (Object o in objects)
         {
             if (o is StateMachineController<M, S, T>)
             {
                 controller = (StateMachineController<M, S, T>)o;
-                break;
             }
         }
 
+
+
         if (controller)
         {
-            stateMachine = controller.GetStateMeshine(0);
+
+            if (Selection.activeObject is M)
+            {
+                for (int index = 0; index < objects.Length; index++)
+                {
+                    if (objects[index] == Selection.activeObject)
+                    {
+                        stateMachine = controller.GetStateMeshine(index);
+                    }
+                }
+
+            }
         }
     }
 
-    private int selectedStatemachine = 0;
     void OnToolbarGUI()
     {
 
@@ -77,18 +87,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
 
         EditorGUILayout.BeginHorizontal();
 
-        EditorGUI.BeginChangeCheck();
-        int selected = EditorGUILayout.Popup(selectedStatemachine, stateMachines.ToArray());
-        if (EditorGUI.EndChangeCheck())
-        {
-            selectedStatemachine = selected;
-            stateMachine = controller.GetStateMeshine(selected);
-        }
-
-        if (GUILayout.Button("Add StateMachine"))
-        {
-            controller.AddStateMachine("NewStateMachine");
-        }
+        GUILayout.Label(stateMachine.name);
 
         EditorGUILayout.EndHorizontal();
     }
@@ -143,6 +142,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 EditorGUILayout.EndHorizontal();
 
             }
+
             showNewParameterPopup = GUI.Toggle(new Rect(parametorWindow.width - 20, 0, 20, 16), showNewParameterPopup, GUIContent.none);
             if (showNewParameterPopup)
             {
@@ -222,8 +222,8 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             bool on = forcusedState == state;
 
             GUIStyle nodeStyle = Styles.GetNodeStyle("node", color, @on);
-
-            state.position = GUI.Window(index, state.position, (id) =>
+            EditorGUI.BeginChangeCheck();
+            Rect pos = GUI.Window(index, state.position, (id) =>
             {
                 S _state = stateMachine.GetState(id);
                 if (isClicked)
@@ -241,6 +241,13 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 DisPlayStatePopupMenu(_state);
                 GUI.DragWindow(new Rect(0, 0, state.position.width, 20));
             }, state.stateName, nodeStyle);
+
+            if (state.position != pos)
+            {
+                state.position = pos;
+                EditorUtility.SetDirty(stateMachine);
+                //                AssetDatabase.SaveAssets();
+            }
         }
         EndWindows();
 
@@ -265,6 +272,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
         DisPlayStateMachinePopupMenu();
     }
 
+
     void DrawTransitions()
     {
         for (int i = 0; i < stateMachine.transitionCount; i++)
@@ -276,7 +284,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 stateMachine.RemoveTransition(i);
                 break;
             }
-            DrawTransition(stateMachine.GetState(blendShapeTransition.fromStateUniqID), stateMachine.GetState(blendShapeTransition.toStateNameUniqID), blendShapeTransition.selected);
+            DrawTransition(stateMachine.UniqueIDToState(blendShapeTransition.fromStateUniqueID), stateMachine.UniqueIDToState(blendShapeTransition.toStateNameUniqueID), blendShapeTransition.selected);
         }
     }
     protected virtual void OnStateGUI(S state)

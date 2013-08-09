@@ -11,13 +11,12 @@ namespace Kyusyukeigo.StateMachine
         where S : State
         where T : Transition
     {
-        public object parentCoontroller;
-
-        [SerializeField]
-        public List<S> states = new List<S>();
-        [SerializeField]
+        [SerializeField, HideInInspector]
+        private List<S> states = new List<S>();
+        [SerializeField, HideInInspector]
         private List<T> transitions = new List<T>();
-
+        [SerializeField, HideInInspector]
+        public List<StateMachineParameter> parameters = new List<StateMachineParameter>();
         /// <summary>
         /// StateMachine内にあるStateの数
         /// </summary>
@@ -56,6 +55,8 @@ namespace Kyusyukeigo.StateMachine
             return transitions;
         }
 
+
+
         /// <summary>
         /// Stateに吹かされているTransitionをすべて取得します
         /// </summary>
@@ -75,7 +76,7 @@ namespace Kyusyukeigo.StateMachine
             List<T> list = new List<T>();
             foreach (T transition in transitions)
             {
-                if (transition.fromStateUniqID == state.uniqID)
+                if (transition.fromStateUniqueID == state.uniqueID)
                 {
                     list.Add(transition);
                 }
@@ -90,7 +91,7 @@ namespace Kyusyukeigo.StateMachine
             List<T> list = new List<T>();
             foreach (T transition in transitions)
             {
-                if (transition.toStateNameUniqID == state.uniqID)
+                if (transition.toStateNameUniqueID == state.uniqueID)
                 {
                     list.Add(transition);
                 }
@@ -133,9 +134,12 @@ namespace Kyusyukeigo.StateMachine
         {
             state.stateName = GetUniqName(state);
             state.position = GetPosition(state.position);
-            state.uniqID = DateTime.Now.Ticks;
+            state.uniqueID = state.GetHashCode();
             states.Add(state);
+#if UNITY_EDITOR
             EditorUtility.SetDirty(this);
+            EditorApplication.SaveAssets();
+#endif
             return state;
         }
 
@@ -169,9 +173,9 @@ namespace Kyusyukeigo.StateMachine
             return states.First(state => state.stateName == stateName);
         }
 
-        public S GetState(long uniqID)
+        public S UniqueIDToState(int uniqueID)
         {
-            return states.First(state => state.uniqID == uniqID);
+            return states.First(state => state.uniqueID == uniqueID);
         }
 
         /// <summary>
@@ -183,11 +187,11 @@ namespace Kyusyukeigo.StateMachine
         }
 
         /// <summary>
-        /// uniqIDからStateがStateMachine内に存在するか確認します
+        /// uniqueIDからStateがStateMachine内に存在するか確認します
         /// </summary>
-        public bool HasState(long uniqID)
+        public bool HasStateFromUniqueID(int uniqueID)
         {
-            return states.Count(state => state.uniqID == uniqID) != 0;
+            return states.Count(state => state.uniqueID == uniqueID) != 0;
         }
 
         /// <summary>
@@ -241,9 +245,9 @@ namespace Kyusyukeigo.StateMachine
         public T AddTransition(S from, S to)
         {
             T transition = Activator.CreateInstance<T>();
-            transition.fromStateUniqID = @from.uniqID;
-            transition.toStateNameUniqID = to.uniqID;
-            transition.transitionName = GetUniqName(@from, to);
+            transition.fromStateUniqueID = @from.uniqueID;
+            transition.toStateNameUniqueID = to.uniqueID;
+            transition.name = GetUniqName(@from, to);
             transitions.Add(transition);
             return transition;
         }
@@ -263,13 +267,13 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// fromからtoへのTransitionがStateMachine内に存在するか確認します
         /// </summary>
-        public bool HasTransition(long fromStateUniqID, long toStateNameUniqID)
+        public bool HasTransitionFromUniqueID(int fromStateUniqID, int toStateNameUniqID)
         {
-            if (!HasState(fromStateUniqID) || !HasState(toStateNameUniqID))
+            if (!HasStateFromUniqueID(fromStateUniqID) || !HasStateFromUniqueID(toStateNameUniqID))
             {
                 return false;
             }
-            return HasTransition(GetState(fromStateUniqID), GetState(toStateNameUniqID));
+            return HasTransition(UniqueIDToState(fromStateUniqID), UniqueIDToState(toStateNameUniqID));
         }
 
         /// <summary>
@@ -280,8 +284,8 @@ namespace Kyusyukeigo.StateMachine
             return
                 transitions.Count(
                     transition =>
-                        (transition.fromStateUniqID == from.uniqID
-                            && transition.toStateNameUniqID == to.uniqID)) != 0;
+                        (transition.fromStateUniqueID == from.uniqueID
+                            && transition.toStateNameUniqueID == to.uniqueID)) != 0;
         }
 
         /// <summary>
@@ -292,7 +296,7 @@ namespace Kyusyukeigo.StateMachine
         public T GetTransition(int index)
         {
             T transition = transitions[index];
-            return HasTransition(transition.fromStateUniqID, transition.toStateNameUniqID)
+            return HasTransitionFromUniqueID(transition.fromStateUniqueID, transition.toStateNameUniqueID)
                 ? transition
                 : null;
         }
@@ -320,7 +324,7 @@ namespace Kyusyukeigo.StateMachine
         private string GetUniqName(S from, S to)
         {
             string transitionName = from.stateName + "-" + to.stateName;
-            int count = transitions.Count(transition => transition.transitionName.StartsWith(transitionName));
+            int count = transitions.Count(transition => transition.name.StartsWith(transitionName));
             return count == 0 ? transitionName : transitionName + " " + count;
         }
 
@@ -338,7 +342,7 @@ namespace Kyusyukeigo.StateMachine
             }
             return pos;
         }
-        public List<StateMachineParameter> parameters = new List<StateMachineParameter>();
+
 
         public void SetString(string key, string value)
         {

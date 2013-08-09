@@ -1,40 +1,34 @@
 ﻿using System;
-
 namespace Kyusyukeigo.StateMachine
 {
     [Serializable]
-    public class Transition : System.Object
+    public class Transition
     {
-        public string transitionName;
-        public long fromStateUniqID, toStateNameUniqID;
-
-
+        public string name;
+        public int fromStateUniqueID, toStateNameUniqueID;
         public bool selected;
-
-
         public string parameterKey;
-        public int selectedParameter = 0;
-
-        public Necessary necessary;
+        public int selectedParameter;
         public float necessaryValue;
+        public Necessary necessary;
         public NecessaryBool necessaryBool;
 
     }
 
+
     [Serializable]
     public enum Necessary
     {
-        Greater,
-        GreaterOrEqual,
-        Less,
-        LessOrEqual,
+        Greater = 0,
+        GreaterOrEqual = 1,
+        Less = 2,
+        LessOrEqual = 3,
     }
 
     [Serializable]
     public enum NecessaryBool
     {
-        True,
-        False,
+        True = 0,
+        False = 1,
     }
-
 }

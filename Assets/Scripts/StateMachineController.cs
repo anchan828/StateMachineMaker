@@ -37,33 +37,35 @@ public class StateMachineController<M, S, TS> : ScriptableObject
         //        methodInfo.Invoke(null, new object[] { defaultAsset, EditorGUIUtility.whiteTexture });
     }
 
-
     public int stateMahineCount
     {
         get
         {
-            string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
-            Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-            return objects.Count(obj => obj is M);
+            return GetSubAssets().Count(obj => obj is M);
         }
     }
 
     public M GetStateMeshine(int index)
     {
-        string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
-        Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-        M[] ms = objects.Where(obj => obj is M).Cast<M>().ToArray();
+        M[] ms = GetSubAssets().Where(obj => obj is M).Cast<M>().ToArray();
         return index <= stateMahineCount ? ms[index] : null;
     }
 
     public void AddStateMachine(string stateMachineName)
     {
         M scriptableObject = (M)ScriptableObject.CreateInstance(typeof(M));
-        scriptableObject.name = stateMachineName;
+        int count = GetSubAssets().Count(obj => obj.name.StartsWith(stateMachineName));
+        scriptableObject.name = count == 0 ? stateMachineName : stateMachineName + " " + count;
         string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
         AssetDatabase.AddObjectToAsset(scriptableObject, assetPath);
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+    }
+
+    private Object[] GetSubAssets()
+    {
+        string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
+        return AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
     }
 
     protected static void CreateAssets<T>() where T : StateMachineController<M, S, TS>

@@ -1,6 +1,7 @@
 ﻿
 using UnityEngine;
 
+[System.Serializable]
 public class StateMachineParameter
 {
     public StateMachineParameter(string name)
@@ -19,6 +20,7 @@ public class StateMachineParameter
     public Vector3 vector3Value;
 }
 
+[System.Serializable]
 public enum StateMachineParameterType
 {
     String, Bool, Int, Float, Vector2, Vector3

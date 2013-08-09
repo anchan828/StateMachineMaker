@@ -43,8 +43,8 @@ public class StateMachineInspector : Editor
         where S : State
         where T : Transition
     {
-        S fromState = stateMachine.GetState(transition.fromStateUniqID);
-        S toState = stateMachine.GetState(transition.toStateNameUniqID);
+        S fromState = stateMachine.UniqueIDToState(transition.fromStateUniqueID);
+        S toState = stateMachine.UniqueIDToState(transition.toStateNameUniqueID);
         string[] displayNames = stateMachine.parameters.Select<StateMachineParameter, string>(paramater => paramater.name).ToArray();
 
         EditorGUILayout.BeginVertical("box");
