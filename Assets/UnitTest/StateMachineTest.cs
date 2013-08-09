@@ -4,7 +4,7 @@ using NUnit.Framework;
 [TestFixture]
 public class StateMachineTest
 {
-    private StateMachine<State,Transition> stateMachine;
+    private StateMachine<State, Transition> stateMachine;
     [SetUp]
     public void StateMachine作成()
     {
@@ -72,7 +72,7 @@ public class StateMachineTest
             }
             else
             {
-                 Assert.False(s.isDefault);
+                Assert.False(s.isDefault);
             }
         });
     }
@@ -88,8 +88,8 @@ public class StateMachineTest
     [Test]
     public void Transitionが追加されていることが確認できること()
     {
-        stateMachine.AddTransition("from", "to");
-        Assert.True(stateMachine.HasTransition("from", "to"));
+        Transition addTransition = stateMachine.AddTransition("from", "to");
+        Assert.True(stateMachine.HasTransition(addTransition.fromStateUniqID, addTransition.toStateNameUniqID));
     }
 
     [Test]

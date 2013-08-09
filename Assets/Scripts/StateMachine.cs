@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -6,12 +7,14 @@ using System;
 namespace Kyusyukeigo.StateMachine
 {
     [Serializable]
-    public class StateMachine<S, T>
+    public class StateMachine<S, T> : ScriptableObject
         where S : State
         where T : Transition
     {
+        public object parentCoontroller;
+
         [SerializeField]
-        private List<S> states = new List<S>();
+        public List<S> states = new List<S>();
         [SerializeField]
         private List<T> transitions = new List<T>();
 
@@ -45,6 +48,55 @@ namespace Kyusyukeigo.StateMachine
             return states;
         }
 
+        /// <summary>
+        /// StateMachine内のTransitionをすべて取得します
+        /// </summary>
+        public List<T> GetAllTransitions()
+        {
+            return transitions;
+        }
+
+        /// <summary>
+        /// Stateに吹かされているTransitionをすべて取得します
+        /// </summary>
+        public List<T> GetTransitionOfState(S state)
+        {
+            List<T> list = new List<T>();
+            list.AddRange(GetTransitionOfFromState(state));
+            list.AddRange(GetTransitionOfToState(state));
+            return list;
+        }
+
+        /// <summary>
+        /// Stateへ移動してくるTransitionをすべて取得します
+        /// </summary>
+        public List<T> GetTransitionOfFromState(S state)
+        {
+            List<T> list = new List<T>();
+            foreach (T transition in transitions)
+            {
+                if (transition.fromStateUniqID == state.uniqID)
+                {
+                    list.Add(transition);
+                }
+            }
+            return list;
+        }
+        /// <summary>
+        /// 別のStateへ移動するTrnsitionをすべて取得します
+        /// </summary>
+        public List<T> GetTransitionOfToState(S state)
+        {
+            List<T> list = new List<T>();
+            foreach (T transition in transitions)
+            {
+                if (transition.toStateNameUniqID == state.uniqID)
+                {
+                    list.Add(transition);
+                }
+            }
+            return list;
+        }
         /// <summary>
         /// StateNameでStateを作成＆追加します
         /// </summary>
@@ -81,7 +133,9 @@ namespace Kyusyukeigo.StateMachine
         {
             state.stateName = GetUniqName(state);
             state.position = GetPosition(state.position);
+            state.uniqID = DateTime.Now.Ticks;
             states.Add(state);
+            EditorUtility.SetDirty(this);
             return state;
         }
 
@@ -115,12 +169,25 @@ namespace Kyusyukeigo.StateMachine
             return states.First(state => state.stateName == stateName);
         }
 
+        public S GetState(long uniqID)
+        {
+            return states.First(state => state.uniqID == uniqID);
+        }
+
         /// <summary>
         /// StateNameからStateがStateMachine内に存在するか確認します
         /// </summary>
         public bool HasState(string stateName)
         {
             return states.Count(state => state.stateName == stateName) != 0;
+        }
+
+        /// <summary>
+        /// uniqIDからStateがStateMachine内に存在するか確認します
+        /// </summary>
+        public bool HasState(long uniqID)
+        {
+            return states.Count(state => state.uniqID == uniqID) != 0;
         }
 
         /// <summary>
@@ -174,8 +241,8 @@ namespace Kyusyukeigo.StateMachine
         public T AddTransition(S from, S to)
         {
             T transition = Activator.CreateInstance<T>();
-            transition.fromStateName = @from.stateName;
-            transition.toStateName = to.stateName;
+            transition.fromStateUniqID = @from.uniqID;
+            transition.toStateNameUniqID = to.uniqID;
             transition.transitionName = GetUniqName(@from, to);
             transitions.Add(transition);
             return transition;
@@ -196,13 +263,13 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// fromからtoへのTransitionがStateMachine内に存在するか確認します
         /// </summary>
-        public bool HasTransition(string fromStateName, string toStateName)
+        public bool HasTransition(long fromStateUniqID, long toStateNameUniqID)
         {
-            if (!HasState(fromStateName) || !HasState(toStateName))
+            if (!HasState(fromStateUniqID) || !HasState(toStateNameUniqID))
             {
                 return false;
             }
-            return HasTransition(GetState(fromStateName), GetState(toStateName));
+            return HasTransition(GetState(fromStateUniqID), GetState(toStateNameUniqID));
         }
 
         /// <summary>
@@ -213,8 +280,8 @@ namespace Kyusyukeigo.StateMachine
             return
                 transitions.Count(
                     transition =>
-                        (transition.fromStateName == from.stateName
-                            && transition.toStateName == to.stateName)) != 0;
+                        (transition.fromStateUniqID == from.uniqID
+                            && transition.toStateNameUniqID == to.uniqID)) != 0;
         }
 
         /// <summary>
@@ -225,7 +292,7 @@ namespace Kyusyukeigo.StateMachine
         public T GetTransition(int index)
         {
             T transition = transitions[index];
-            return HasTransition(transition.fromStateName, transition.toStateName)
+            return HasTransition(transition.fromStateUniqID, transition.toStateNameUniqID)
                 ? transition
                 : null;
         }
@@ -270,6 +337,92 @@ namespace Kyusyukeigo.StateMachine
                 return GetPosition(pos);
             }
             return pos;
+        }
+        public List<StateMachineParameter> parameters = new List<StateMachineParameter>();
+
+        public void SetString(string key, string value)
+        {
+            var parameter = GetParameter(key);
+            parameter.stringValue = value;
+            parameter.parameterType = StateMachineParameterType.String;
+        }
+
+        public void SetBool(string key, bool value)
+        {
+            var parameter = GetParameter(key);
+            parameter.boolValue = value;
+            parameter.parameterType = StateMachineParameterType.Bool;
+        }
+        public void SetInt(string key, int value)
+        {
+            var parameter = GetParameter(key);
+            parameter.intValue = value;
+            parameter.parameterType = StateMachineParameterType.Int;
+        }
+        public void SetFloat(string key, float value)
+        {
+            var parameter = GetParameter(key);
+            parameter.floatValue = value;
+            parameter.parameterType = StateMachineParameterType.Float;
+        }
+        public void SetVector2(string key, Vector2 value)
+        {
+            var parameter = GetParameter(key);
+            parameter.vector2Value = value;
+            parameter.parameterType = StateMachineParameterType.Vector2;
+        }
+        public void SetVector3(string key, Vector3 value)
+        {
+            var parameter = GetParameter(key);
+            parameter.vector3Value = value;
+            parameter.parameterType = StateMachineParameterType.Vector3;
+
+        }
+
+        public string GetString(string key)
+        {
+            return GetParameter(key).stringValue;
+        }
+        public bool GetBool(string key)
+        {
+            return GetParameter(key).boolValue;
+        }
+        public int GetInt(string key)
+        {
+            return GetParameter(key).intValue;
+        }
+        public float GetFloat(string key)
+        {
+            return GetParameter(key).floatValue;
+        }
+        public Vector2 GetVector2(string key)
+        {
+            return GetParameter(key).vector2Value;
+        }
+        public Vector3 GetVector3(string key)
+        {
+            return GetParameter(key).vector3Value;
+        }
+
+        private StateMachineParameter GetParameter(string key)
+        {
+            StateMachineParameter parameter = null;
+            try
+            {
+                parameter = parameters.First(paramater => paramater.name == key);
+            }
+            catch (InvalidOperationException)
+            {
+                parameter = CreteStateMachineParameter(key);
+            }
+            return parameter;
+        }
+
+        private StateMachineParameter CreteStateMachineParameter(string key)
+        {
+            var parameter = new StateMachineParameter(key);
+            parameters.Add(parameter);
+            return parameter;
         }
     }
 }

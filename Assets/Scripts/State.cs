@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Kyusyukeigo.StateMachine
 {
     [Serializable]
-    public class State : System.Object
+    public class State
     {
         /// <summary>
         /// State名
@@ -16,6 +16,12 @@ namespace Kyusyukeigo.StateMachine
         /// 必ずStateMachineにデフォルトは１つ
         /// </summary>
         public bool isDefault;
+
+        /// <summary>
+        /// ユニークID
+        /// 今のところDateTime
+        /// </summary>
+        public long uniqID;
 
         /// <summary>
         /// EditorWindow上でStateを表示するときの大きさ

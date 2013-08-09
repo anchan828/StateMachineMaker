@@ -9,16 +9,10 @@ public class ExampleWindow : StateMachineWindow<ExampleStateMachine, ExampleStat
     {
         GetWindow<ExampleWindow>();
     }
-}
 
-public class ExampleTransition : Transition
-{
-}
 
-public class ExampleState : State
-{
-}
-
-public class ExampleStateMachine : StateMachine<ExampleState, ExampleTransition>
-{
+    protected override void OnStateGUI(ExampleState state)
+    {
+        GUILayout.Label("ヾ(๑╹◡╹)ﾉ”");
+    }
 }
