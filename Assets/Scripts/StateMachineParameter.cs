@@ -1,27 +1,31 @@
 ﻿
+using System;
 using UnityEngine;
 
-[System.Serializable]
-public class StateMachineParameter
+namespace Kyusyukeigo.StateMachine
 {
-    public StateMachineParameter(string name)
+    [Serializable]
+    public class StateMachineParameter
     {
-        this.name = name;
+        public StateMachineParameter(string name)
+        {
+            this.name = name;
+        }
+
+        public string name;
+
+        public ParameterType parameterType;
+        public string stringValue;
+        public bool boolValue;
+        public int intValue;
+        public float floatValue;
+        public Vector2 vector2Value;
+        public Vector3 vector3Value;
     }
 
-    public string name;
-
-    public StateMachineParameterType parameterType;
-    public string stringValue;
-    public bool boolValue;
-    public int intValue;
-    public float floatValue;
-    public Vector2 vector2Value;
-    public Vector3 vector3Value;
-}
-
-[System.Serializable]
-public enum StateMachineParameterType
-{
-    String, Bool, Int, Float, Vector2, Vector3
+    [Serializable]
+    public enum ParameterType
+    {
+        String, Bool, Int, Float, Vector2, Vector3,
+    }
 }

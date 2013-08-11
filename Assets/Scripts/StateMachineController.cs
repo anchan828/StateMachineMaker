@@ -1,120 +1,147 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 using Kyusyukeigo.StateMachine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-[System.Serializable]
-public class StateMachineController<M, S, TS> : ScriptableObject
-    where M : StateMachine<S, TS>
-    where S : State
-    where TS : Transition
+namespace Kyusyukeigo.StateMachine
 {
-
-    public StateMachineController()
+    [System.Serializable]
+    public class StateMachineController<M, S, TS> : ScriptableObject
+        where M : StateMachine<S, TS>
+        where S : State
+        where TS : Transition
     {
-        // TODO どうにかしてIconを変更したい...
-        //        string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(GetInstanceID()));
-        //        EditorApplication.projectWindowItemOnGUI += (_guid, rect) =>
-        //        {
-        //            if (guid == _guid)
-        //            {
-        //                rect.width = 16;
-        //                rect.height = 16;
-        //                GUI.DrawTexture(rect, (Texture)EditorGUIUtility.Load("Icons/Generated/State Icon.asset"));
-        //            }
-        //        };
-        //
-        //        Object defaultAsset = AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath(GetInstanceID()), typeof(UnityEngine.Object));
-        //        Debug.Log(defaultAsset);
-        //
-        //        MethodInfo methodInfo = typeof(EditorGUIUtility).GetMethod("SetIconForObject", BindingFlags.Static | BindingFlags.NonPublic);
-        //        methodInfo.Invoke(null, new object[] { defaultAsset, EditorGUIUtility.whiteTexture });
-    }
 
-    public int stateMahineCount
-    {
-        get
+        public StateMachineController()
         {
-            return GetSubAssets().Count(obj => obj is M);
+            // TODO どうにかしてIconを変更したい...
+            //        string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(GetInstanceID()));
+            //        EditorApplication.projectWindowItemOnGUI += (_guid, rect) =>
+            //        {
+            //            if (guid == _guid)
+            //            {
+            //                rect.width = 16;
+            //                rect.height = 16;
+            //                GUI.DrawTexture(rect, (Texture)EditorGUIUtility.Load("Icons/Generated/State Icon.asset"));
+            //            }
+            //        };
+            //
+            //        Object defaultAsset = AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath(GetInstanceID()), typeof(UnityEngine.Object));
+            //        Debug.Log(defaultAsset);
+            //
+            //        MethodInfo methodInfo = typeof(EditorGUIUtility).GetMethod("SetIconForObject", BindingFlags.Static | BindingFlags.NonPublic);
+            //        methodInfo.Invoke(null, new object[] { defaultAsset, EditorGUIUtility.whiteTexture });
         }
-    }
 
-    public M GetStateMeshine(int index)
-    {
-        M[] ms = GetSubAssets().Where(obj => obj is M).Cast<M>().ToArray();
-        return index <= stateMahineCount ? ms[index] : null;
-    }
-
-    public void AddStateMachine(string stateMachineName)
-    {
-        M scriptableObject = (M)ScriptableObject.CreateInstance(typeof(M));
-        int count = GetSubAssets().Count(obj => obj.name.StartsWith(stateMachineName));
-        scriptableObject.name = count == 0 ? stateMachineName : stateMachineName + " " + count;
-        string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
-        AssetDatabase.AddObjectToAsset(scriptableObject, assetPath);
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-    }
-
-    private Object[] GetSubAssets()
-    {
-        string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
-        return AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-    }
-
-    protected static void CreateAssets<T>() where T : StateMachineController<M, S, TS>
-    {
-        T stateMachineController = ScriptableObject.CreateInstance<T>();
-        string directoryPath = "Assets";
-
-        if (Selection.activeObject)
+        public int stateMahineCount
         {
-            string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-
-            if (Directory.Exists(assetPath))
+            get
             {
-                directoryPath = assetPath;
-            }
-            else
-            {
-                directoryPath = Path.GetDirectoryName(assetPath);
+                return stateMachines.Count;
             }
         }
-        stateMachineController.name = "New" + stateMachineController.GetType().Name;
-        string uniqueAssetPath = AssetDatabase.GenerateUniqueAssetPath(directoryPath + "/" + stateMachineController.name + ".asset");
-        AssetDatabase.CreateAsset(stateMachineController, uniqueAssetPath);
-        M stateMachine = ScriptableObject.CreateInstance<M>();
-        stateMachine.name = "NewStateMachine";
-        stateMachine.AddState("New State");
-        AssetDatabase.AddObjectToAsset(stateMachine, uniqueAssetPath);
-        stateMachineController.name = "Settings";
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
+        [HideInInspector]
+        public int selectedStateMachine = 0; // Base
+
+        public void MoveStateMachine(M stateMachine, int index)
+        {
+            if (index <= stateMachines.Count)
+            {
+                stateMachines.Remove(stateMachine);
+                stateMachines.Insert(index, stateMachine);
+            }
+        }
+
+        public M currentStateMachine
+        {
+            get
+            {
+                return GetStateMeshine(selectedStateMachine);
+            }
+        }
+
+        [SerializeField]
+        private List<M> stateMachines = new List<M>();
+
+        public List<M> GetAllStateMachines()
+        {
+            return stateMachines;
+        }
+        
+        public M GetStateMeshine(int index)
+        {
+            return index <= stateMahineCount ? stateMachines[index] : null;
+        }
+
+        public void AddStateMachine(string stateMachineName)
+        {
+            M stateMachine = Activator.CreateInstance<M>();
+            stateMachine.AddState("New State");
+            int count = stateMachines.Count(sm => sm.name.StartsWith(stateMachineName));
+            stateMachine.name = count == 0 ? stateMachineName : stateMachineName + " " + count;
+            stateMachines.Add(stateMachine);
+            #if UNITY_EDITOR
+            string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
+            stateMachine.hideFlags = HideFlags.HideInInspector;
+            AssetDatabase.AddObjectToAsset(stateMachine, assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            #endif
+        }
+
+        public void RemoveStateMachine(M stateMachine)
+        {
+            stateMachines.Remove(stateMachine);
+        }
+        protected static T CreateAssets<T>() where T : StateMachineController<M, S, TS>
+        {
+            T stateMachineController = CreateInstance<T>();
+            string directoryPath = "Assets";
+#if UNITY_EDITOR
+            if (Selection.activeObject)
+            {
+                string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+
+                if (Directory.Exists(assetPath))
+                {
+                    directoryPath = assetPath;
+                }
+                else
+                {
+                    directoryPath = Path.GetDirectoryName(assetPath);
+                }
+            }
+            stateMachineController.name = "New" + stateMachineController.GetType().Name;
+            string uniqueAssetPath =
+                AssetDatabase.GenerateUniqueAssetPath(directoryPath + "/" + stateMachineController.name + ".asset");
+            AssetDatabase.CreateAsset(stateMachineController, uniqueAssetPath);
+            stateMachineController.AddStateMachine("NewStateMachine");
+            stateMachineController.name = "Settings";
+            AssetDatabase.SaveAssets();
+#elif
+            stateMachineController.AddStateMachine("NewStateMachine");
+            stateMachineController.name = "Settings";
+#endif
+            return stateMachineController;
+        }
+
+        public M SetStateMachine(M stateMachine)
+        {
+            for (int i = 0; i < stateMachines.Count; i++)
+            {
+                if (stateMachines[i] == stateMachine)
+                {
+                    selectedStateMachine = i;
+                    break;
+                }
+            }
+            return stateMachines[selectedStateMachine];
+        }
     }
-
-    public void Sync(M stateMachine)
-    {
-        //        string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
-        //        Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-        //
-        //        foreach (Object o in objects)
-        //        {
-        //            if (o is M)
-        //            {
-        //                M stateM = (M)o;
-        //                EditorUtility.SetDirty(stateM);
-        //                EditorUtility.SetDirty(this);
-        //                AssetDatabase.SaveAssets();
-        //                AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-        //            }
-        //        }
-    }
-
-
 }

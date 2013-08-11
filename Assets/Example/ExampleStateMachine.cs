@@ -1,4 +1,7 @@
-﻿public class ExampleStateMachine : Kyusyukeigo.StateMachine.StateMachine<ExampleState,ExampleTransition>
+﻿using System;
+
+[Serializable]
+public class ExampleStateMachine : Kyusyukeigo.StateMachine.StateMachine<ExampleState,ExampleTransition>
 {
    
 }

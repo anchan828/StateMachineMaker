@@ -30,7 +30,7 @@ namespace Kyusyukeigo.StateMachine
 
         public override string ToString()
         {
-            return string.Format("[State] {0} {1}", stateName, position);
+            return string.Format("[State] {0} {1} {2}", stateName, uniqueID, position);
         }
 
         public object Clone()

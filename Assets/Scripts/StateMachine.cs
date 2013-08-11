@@ -1,5 +1,7 @@
 ﻿using System.Linq;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using System.Collections.Generic;
 using System;
@@ -11,6 +13,7 @@ namespace Kyusyukeigo.StateMachine
         where S : State
         where T : Transition
     {
+
         [SerializeField, HideInInspector]
         private List<S> states = new List<S>();
         [SerializeField, HideInInspector]
@@ -26,6 +29,56 @@ namespace Kyusyukeigo.StateMachine
             {
                 return states.Count;
             }
+        }
+
+        [NonSerialized]
+        private int selectedState = -1;
+
+        private S _currentState = null;
+        /// <summary>
+        /// 現在選択中のStateMachineを取得します
+        /// </summary>
+        public S currentState
+        {
+            get
+            {
+                if (states.Count == 0) return null;
+
+                S state = null;
+                if (selectedState == -1)
+                {
+                    state = states[0];
+                    selectedState = 0;
+                    for (int index = 0; index < states.Count; index++)
+                    {
+                        S _states = states[index];
+                        if (_states.isDefault)
+                        {
+                            selectedState = index;
+                            state = _states;
+                            break;
+                        }
+                    }
+                    if (selectedState == 0)
+                    {
+                        SetDefault(state);
+                    }
+                }
+                else
+                {
+                    state = GetState(selectedState);
+                }
+                if (state == null)
+                {
+                    Debug.LogError("Stateがありません");
+                }
+                return state;
+            }
+        }
+
+        public void SetCurrentState(S state)
+        {
+            selectedState = states.IndexOf(state);
         }
 
         /// <summary>
@@ -58,7 +111,7 @@ namespace Kyusyukeigo.StateMachine
 
 
         /// <summary>
-        /// Stateに吹かされているTransitionをすべて取得します
+        /// Stateに付加しているTransitionをすべて取得します
         /// </summary>
         public List<T> GetTransitionOfState(S state)
         {
@@ -76,7 +129,7 @@ namespace Kyusyukeigo.StateMachine
             List<T> list = new List<T>();
             foreach (T transition in transitions)
             {
-                if (transition.fromStateUniqueID == state.uniqueID)
+                if (transition.toStateNameUniqueID == state.uniqueID)
                 {
                     list.Add(transition);
                 }
@@ -91,7 +144,7 @@ namespace Kyusyukeigo.StateMachine
             List<T> list = new List<T>();
             foreach (T transition in transitions)
             {
-                if (transition.toStateNameUniqueID == state.uniqueID)
+                if (transition.fromStateUniqueID == state.uniqueID)
                 {
                     list.Add(transition);
                 }
@@ -137,7 +190,6 @@ namespace Kyusyukeigo.StateMachine
             state.uniqueID = state.GetHashCode();
             states.Add(state);
 #if UNITY_EDITOR
-            EditorUtility.SetDirty(this);
             EditorApplication.SaveAssets();
 #endif
             return state;
@@ -172,7 +224,11 @@ namespace Kyusyukeigo.StateMachine
         {
             return states.First(state => state.stateName == stateName);
         }
-
+        /// <summary>
+        /// ユニークIDからStateへ変換します
+        /// </summary>
+        /// <param name="uniqueID"></param>
+        /// <returns></returns>
         public S UniqueIDToState(int uniqueID)
         {
             return states.First(state => state.uniqueID == uniqueID);
@@ -233,10 +289,10 @@ namespace Kyusyukeigo.StateMachine
         /// <param name="state"></param>
         public void SetDefault(S state)
         {
-            states.ForEach(s =>
+            foreach (S s in states)
             {
                 s.isDefault = state.stateName == s.stateName;
-            });
+            }
         }
 
         /// <summary>
@@ -343,43 +399,47 @@ namespace Kyusyukeigo.StateMachine
             return pos;
         }
 
+        public ParameterType GetParameterType(string key)
+        {
+            return GetParameter(key).parameterType;
+        }
 
         public void SetString(string key, string value)
         {
             var parameter = GetParameter(key);
             parameter.stringValue = value;
-            parameter.parameterType = StateMachineParameterType.String;
+            parameter.parameterType = ParameterType.String;
         }
 
         public void SetBool(string key, bool value)
         {
             var parameter = GetParameter(key);
             parameter.boolValue = value;
-            parameter.parameterType = StateMachineParameterType.Bool;
+            parameter.parameterType = ParameterType.Bool;
         }
         public void SetInt(string key, int value)
         {
             var parameter = GetParameter(key);
             parameter.intValue = value;
-            parameter.parameterType = StateMachineParameterType.Int;
+            parameter.parameterType = ParameterType.Int;
         }
         public void SetFloat(string key, float value)
         {
             var parameter = GetParameter(key);
             parameter.floatValue = value;
-            parameter.parameterType = StateMachineParameterType.Float;
+            parameter.parameterType = ParameterType.Float;
         }
         public void SetVector2(string key, Vector2 value)
         {
             var parameter = GetParameter(key);
             parameter.vector2Value = value;
-            parameter.parameterType = StateMachineParameterType.Vector2;
+            parameter.parameterType = ParameterType.Vector2;
         }
         public void SetVector3(string key, Vector3 value)
         {
             var parameter = GetParameter(key);
             parameter.vector3Value = value;
-            parameter.parameterType = StateMachineParameterType.Vector3;
+            parameter.parameterType = ParameterType.Vector3;
 
         }
 

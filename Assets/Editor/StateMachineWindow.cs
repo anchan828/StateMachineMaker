@@ -3,8 +3,10 @@ using System.Linq;
 using System.Reflection;
 using Kyusyukeigo.StateMachine;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEditor.Graphs;
 using UnityEngine;
+using System.Collections.Generic;
 using Object = UnityEngine.Object;
 
 /// <summary>
@@ -46,48 +48,34 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     private StateMachineController<M, S, T> controller;
     void OnSelectionChange()
     {
+        SetUpControllerAndStateMachine(Selection.activeInstanceID);
+        EditorUserSettings.SetConfigValue("Last" + name + "Controller", controller.GetInstanceID().ToString());
+        AssetDatabase.SaveAssets();
+        Repaint();
+    }
 
-        string assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
+    void SetUpControllerAndStateMachine(int instanceID)
+    {
+        string assetPath = AssetDatabase.GetAssetPath(instanceID);
         Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-        foreach (Object o in objects)
+        foreach (Object obj in objects)
         {
-            if (o is StateMachineController<M, S, T>)
+            if (obj is StateMachineController<M, S, T>)
             {
-                controller = (StateMachineController<M, S, T>)o;
+                controller = (StateMachineController<M, S, T>)obj;
             }
-        }
-
-
-
-        if (controller)
-        {
-
-            if (Selection.activeObject is M)
+            if (obj is M && obj.GetInstanceID() == instanceID)
             {
-                for (int index = 0; index < objects.Length; index++)
-                {
-                    if (objects[index] == Selection.activeObject)
-                    {
-                        stateMachine = controller.GetStateMeshine(index);
-                    }
-                }
-
+                stateMachine = controller.SetStateMachine((M)obj);
             }
         }
     }
 
     void OnToolbarGUI()
     {
-
-        System.Collections.Generic.List<string> stateMachines = new System.Collections.Generic.List<string>();
-        for (int i = 0; i < controller.stateMahineCount; i++)
-        {
-            stateMachines.Add(controller.GetStateMeshine(i).name);
-        }
-
         EditorGUILayout.BeginHorizontal();
-
-        GUILayout.Label(stateMachine.name);
+        if (stateMachine != null)
+            GUILayout.Label(stateMachine.name);
 
         EditorGUILayout.EndHorizontal();
     }
@@ -108,25 +96,25 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 stateMachineParameter.name = GUILayout.TextField(stateMachineParameter.name);
                 switch (stateMachineParameter.parameterType)
                 {
-                    case StateMachineParameterType.String:
+                    case ParameterType.String:
                         stateMachineParameter.stringValue = GUILayout.TextField(stateMachineParameter.stringValue);
                         break;
-                    case StateMachineParameterType.Bool:
+                    case ParameterType.Bool:
                         stateMachineParameter.boolValue = GUILayout.Toggle(stateMachineParameter.boolValue, GUIContent.none);
                         break;
-                    case StateMachineParameterType.Int:
+                    case ParameterType.Int:
                         stateMachineParameter.intValue = EditorGUILayout.IntField(stateMachineParameter.intValue);
                         break;
-                    case StateMachineParameterType.Float:
+                    case ParameterType.Float:
                         stateMachineParameter.floatValue = EditorGUILayout.FloatField(stateMachineParameter.floatValue);
                         break;
-                    case StateMachineParameterType.Vector2:
+                    case ParameterType.Vector2:
                         float x = stateMachineParameter.vector2Value.x, y = stateMachineParameter.vector2Value.y;
                         x = EditorGUILayout.FloatField(x);
                         y = EditorGUILayout.FloatField(y);
                         stateMachineParameter.vector2Value = new Vector2(x, y);
                         break;
-                    case StateMachineParameterType.Vector3:
+                    case ParameterType.Vector3:
                         x = stateMachineParameter.vector3Value.x;
                         y = stateMachineParameter.vector3Value.y;
                         float z = stateMachineParameter.vector3Value.z;
@@ -148,7 +136,6 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             {
                 if (genericMenu.GetItemCount() == 0)
                     DisPlayParameterPopupMenu();
-                Debug.Log(genericMenu.GetItemCount());
                 genericMenu.ShowAsContext();
                 showNewParameterPopup = false;
             }
@@ -175,6 +162,13 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     protected virtual void OnEnable()
     {
         window = GetCurrentWindow();
+        string controllerValue = EditorUserSettings.GetConfigValue("Last" + name + "Controller");
+        int controllerInstanceID;
+
+        if (int.TryParse(controllerValue, out controllerInstanceID))
+        {
+            SetUpControllerAndStateMachine(controllerInstanceID);
+        }
         OnInitializeGraph();
     }
 
@@ -220,7 +214,11 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             S state = stateMachine.GetState(index);
             Styles.Color color = state.isDefault ? Styles.Color.Orange : Styles.Color.Gray;
             bool on = forcusedState == state;
-
+            if (stateMachine.currentState == state)
+            {
+                color = Styles.Color.Aqua;
+                on = true;
+            }
             GUIStyle nodeStyle = Styles.GetNodeStyle("node", color, @on);
             EditorGUI.BeginChangeCheck();
             Rect pos = GUI.Window(index, state.position, (id) =>
@@ -232,9 +230,9 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                     Type inspectorWindow = Types.GetType("UnityEditor.InspectorWindow", "UnityEditor.dll");
                     if (stateMachineInspectorWindow == null)
                         stateMachineInspectorWindow = GetWindow<StateMachineInspectorWindow>(inspectorWindow);
-                    Debug.Log(stateMachineInspectorWindow);
-                    stateMachineInspectorWindow.SetStateMachine<M, S, T>(stateMachine, _state);
+                    stateMachineInspectorWindow.SetStateMachine<M, S, T>(window, stateMachine, _state);
                     stateMachineInspectorWindow.Repaint();
+                    Repaint();
                 }
 
                 OnStateGUI(_state);
@@ -245,8 +243,6 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             if (state.position != pos)
             {
                 state.position = pos;
-                EditorUtility.SetDirty(stateMachine);
-                //                AssetDatabase.SaveAssets();
             }
         }
         EndWindows();
@@ -260,13 +256,12 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 if (forcusedState != null && startMakeTransition != forcusedState)
                 {
                     stateMachine.AddTransition(startMakeTransition, forcusedState);
-                    stateMachineInspectorWindow.SetStateMachine<M, S, T>(stateMachine, forcusedState);
+                    stateMachineInspectorWindow.SetStateMachine<M, S, T>(window, stateMachine, forcusedState);
                     stateMachineInspectorWindow.Repaint();
                 }
                 startMakeTransition = null;
             }
         }
-
         DrawTransitions();
 
         DisPlayStateMachinePopupMenu();
@@ -435,7 +430,6 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 break;
             case "Add State":
                 stateMachine.AddState("New State");
-                controller.Sync(stateMachine);
                 break;
             case "Set Default":
                 state = userData as S;
@@ -461,6 +455,13 @@ public class StateMachineWindow<M, S, T> : EditorWindow
 
     void Update()
     {
-        Repaint();
+        if (EditorApplication.isPlaying || startMakeTransition != null)
+            Repaint();
+
+        if (controller != null && stateMachine != controller.currentStateMachine)
+        {
+            stateMachine = controller.currentStateMachine;
+            Repaint();
+        }
     }
 }

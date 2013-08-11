@@ -11,9 +11,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d24790b97f9245689d2cfeb4a47346b, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
+  selectedStateMachine: 0
+  stateMachines:
+  - {fileID: 11400002}
+  - {fileID: 11400004}
+  - {fileID: 11400006}
+  - {fileID: 11400008}
+  - {fileID: 11400010}
+  - {fileID: 11400012}
+  - {fileID: 11400014}
+  - {fileID: 11400016}
 --- !u!114 &11400002
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -25,17 +35,7 @@ MonoBehaviour:
   states:
   - stateName: New State
     isDefault: 0
-    uniqueID: 256716608
-    position:
-      serializedVersion: 2
-      x: 330
-      y: -135
-      width: 170
-      height: 60
-    hogehooge: 
-  - stateName: New State 1
-    isDefault: 0
-    uniqueID: 840034816
+    uniqueID: -1927317376
     position:
       serializedVersion: 2
       x: 0
@@ -43,33 +43,167 @@ MonoBehaviour:
       width: 170
       height: 60
     hogehooge: 
-  - stateName: New State 2
-    isDefault: 0
-    uniqueID: 2044106176
-    position:
-      serializedVersion: 2
-      x: 85
-      y: 30
-      width: 170
-      height: 60
-    hogehooge: 
   transitions: []
   parameters: []
 --- !u!114 &11400004
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: Hoge
+  m_Name: NewStateMachine 1
   m_EditorClassIdentifier: 
   states:
   - stateName: New State
     isDefault: 0
-    uniqueID: 266335488
+    uniqueID: -1971558016
+    position:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 170
+      height: 60
+    hogehooge: 
+  transitions: []
+  parameters: []
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
+  m_Name: NewStateMachine 2
+  m_EditorClassIdentifier: 
+  states:
+  - stateName: New State
+    isDefault: 0
+    uniqueID: -1795725824
+    position:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 170
+      height: 60
+    hogehooge: 
+  transitions: []
+  parameters: []
+--- !u!114 &11400008
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
+  m_Name: NewStateMachine 3
+  m_EditorClassIdentifier: 
+  states:
+  - stateName: New State
+    isDefault: 0
+    uniqueID: 88451904
+    position:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 170
+      height: 60
+    hogehooge: 
+  transitions: []
+  parameters: []
+--- !u!114 &11400010
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
+  m_Name: NewStateMachine 4
+  m_EditorClassIdentifier: 
+  states:
+  - stateName: New State
+    isDefault: 0
+    uniqueID: 1637420672
+    position:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 170
+      height: 60
+    hogehooge: 
+  transitions: []
+  parameters: []
+--- !u!114 &11400012
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
+  m_Name: NewStateMachine 5
+  m_EditorClassIdentifier: 
+  states:
+  - stateName: New State
+    isDefault: 0
+    uniqueID: -256863744
+    position:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 170
+      height: 60
+    hogehooge: 
+  transitions: []
+  parameters: []
+--- !u!114 &11400014
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
+  m_Name: NewStateMachine 6
+  m_EditorClassIdentifier: 
+  states:
+  - stateName: New State
+    isDefault: 0
+    uniqueID: -1221258816
+    position:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 170
+      height: 60
+    hogehooge: 
+  transitions: []
+  parameters: []
+--- !u!114 &11400016
+MonoBehaviour:
+  m_ObjectHideFlags: 2
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
+  m_Name: NewStateMachine 7
+  m_EditorClassIdentifier: 
+  states:
+  - stateName: New State
+    isDefault: 0
+    uniqueID: 1706153856
     position:
       serializedVersion: 2
       x: 0
