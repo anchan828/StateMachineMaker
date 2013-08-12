@@ -20,7 +20,7 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// ユニークID
         /// </summary>
-        public int uniqueID;
+        public string uniqueID = Guid.NewGuid().ToString();
 
         /// <summary>
         /// EditorWindow上でStateを表示するときの大きさ
@@ -30,7 +30,7 @@ namespace Kyusyukeigo.StateMachine
 
         public override string ToString()
         {
-            return string.Format("[State] {0} {1} {2}", stateName, uniqueID, position);
+            return string.Format("[State] {0} {1}", stateName, uniqueID);
         }
 
         public object Clone()

@@ -21,10 +21,29 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     protected GraphGUI stateMachineGraphGUI;
     protected static EditorWindow window;
     private const int ToolbarHeight = 17;
-    private StateMachineInspectorWindow stateMachineInspectorWindow;
-    private M stateMachine = null;
     private S startMakeTransition = null;
     private S forcusedState = null;
+    private Dictionary<S, StateNode> nodes = new Dictionary<S, StateNode>();
+
+    public StateMachineWindow()
+    {
+        GetController();
+        if (controller == null || controller.stateMahineCount == 0) return;
+
+        for (int index = 0; index < stateMachine.stateCount; index++)
+        {
+            S state = stateMachine.GetState(index);
+            SyncNode(state, stateMachine);
+        }
+    }
+
+    private M stateMachine
+    {
+        get
+        {
+            return controller ? controller.currentStateMachine : null;
+        }
+    }
 
     private bool initialized
     {
@@ -49,25 +68,20 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     void OnSelectionChange()
     {
         SetUpControllerAndStateMachine(Selection.activeInstanceID);
-        EditorUserSettings.SetConfigValue("Last" + name + "Controller", controller.GetInstanceID().ToString());
-        AssetDatabase.SaveAssets();
+
+        Save();
         Repaint();
     }
 
     void SetUpControllerAndStateMachine(int instanceID)
     {
         string assetPath = AssetDatabase.GetAssetPath(instanceID);
-        Object[] objects = AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-        foreach (Object obj in objects)
+        Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Object));
+        if (!obj) return;
+        if (obj is StateMachineController<M, S, T>)
         {
-            if (obj is StateMachineController<M, S, T>)
-            {
-                controller = (StateMachineController<M, S, T>)obj;
-            }
-            if (obj is M && obj.GetInstanceID() == instanceID)
-            {
-                stateMachine = controller.SetStateMachine((M)obj);
-            }
+            controller = (StateMachineController<M, S, T>)obj;
+            EditorUserSettings.SetConfigValue("LastController", controller.GetInstanceID().ToString());
         }
     }
 
@@ -94,25 +108,50 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             {
                 EditorGUILayout.BeginHorizontal(GUILayout.Width(parametorWindow.width * 0.9f));
                 stateMachineParameter.name = GUILayout.TextField(stateMachineParameter.name);
+                EditorGUI.BeginChangeCheck();
                 switch (stateMachineParameter.parameterType)
                 {
                     case ParameterType.String:
-                        stateMachineParameter.stringValue = GUILayout.TextField(stateMachineParameter.stringValue);
+                        string stringValue = GUILayout.TextField(stateMachineParameter.stringValue);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            RegisterUndo("Sync StringValue");
+                            stateMachineParameter.stringValue = stringValue;
+                        }
                         break;
                     case ParameterType.Bool:
-                        stateMachineParameter.boolValue = GUILayout.Toggle(stateMachineParameter.boolValue, GUIContent.none);
+                        bool boolValue = GUILayout.Toggle(stateMachineParameter.boolValue, GUIContent.none);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            RegisterUndo("Sync BoolValue");
+                            stateMachineParameter.boolValue = boolValue;
+                        }
                         break;
                     case ParameterType.Int:
-                        stateMachineParameter.intValue = EditorGUILayout.IntField(stateMachineParameter.intValue);
+                        int intValue = EditorGUILayout.IntField(stateMachineParameter.intValue);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            RegisterUndo("Sync IntValue");
+                            stateMachineParameter.intValue = intValue;
+                        }
                         break;
                     case ParameterType.Float:
-                        stateMachineParameter.floatValue = EditorGUILayout.FloatField(stateMachineParameter.floatValue);
+                        float floatValue = EditorGUILayout.FloatField(stateMachineParameter.floatValue);
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            stateMachineParameter.floatValue = floatValue;
+                        }
                         break;
                     case ParameterType.Vector2:
                         float x = stateMachineParameter.vector2Value.x, y = stateMachineParameter.vector2Value.y;
                         x = EditorGUILayout.FloatField(x);
                         y = EditorGUILayout.FloatField(y);
-                        stateMachineParameter.vector2Value = new Vector2(x, y);
+
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            RegisterUndo("Sync Vector2Value");
+                            stateMachineParameter.vector2Value = new Vector2(x, y);
+                        }
                         break;
                     case ParameterType.Vector3:
                         x = stateMachineParameter.vector3Value.x;
@@ -121,14 +160,17 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                         x = EditorGUILayout.FloatField(x);
                         y = EditorGUILayout.FloatField(y);
                         z = EditorGUILayout.FloatField(z);
-                        stateMachineParameter.vector3Value = new Vector3(x, y, z);
+
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            RegisterUndo("Sync Vector3Value");
+                            stateMachineParameter.vector3Value = new Vector3(x, y, z);
+                        }
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        break;
                 }
-
                 EditorGUILayout.EndHorizontal();
-
             }
 
             showNewParameterPopup = GUI.Toggle(new Rect(parametorWindow.width - 20, 0, 20, 16), showNewParameterPopup, GUIContent.none);
@@ -162,14 +204,19 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     protected virtual void OnEnable()
     {
         window = GetCurrentWindow();
-        string controllerValue = EditorUserSettings.GetConfigValue("Last" + name + "Controller");
+        GetController();
+        OnInitializeGraph();
+    }
+
+    private void GetController()
+    {
+        string controllerValue = EditorUserSettings.GetConfigValue("LastController");
         int controllerInstanceID;
 
         if (int.TryParse(controllerValue, out controllerInstanceID))
         {
             SetUpControllerAndStateMachine(controllerInstanceID);
         }
-        OnInitializeGraph();
     }
 
     protected virtual void OnDisable()
@@ -183,6 +230,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     /// </summary>
     void OnGUI()
     {
+
         if (!initialized)
             OnInitializeGraph();
         if (!controller)
@@ -190,6 +238,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             EditorGUIUtility.ExitGUI();
             return;
         }
+
         OnToolbarGUI();
 
         stateMachineGraphGUI.BeginGraphGUI(window, new Rect(0, ToolbarHeight, window.position.width, window.position.height));
@@ -202,6 +251,9 @@ public class StateMachineWindow<M, S, T> : EditorWindow
         stateMachineGraphGUI.EndGraphGUI();
 
     }
+
+
+
     /// <summary>
     /// StateやTransitionを描画する
     /// </summary>
@@ -209,33 +261,41 @@ public class StateMachineWindow<M, S, T> : EditorWindow
     {
         BeginWindows();
         OnStateMachineParameter();
+        DrawTransitions();
         for (int index = 0; index < stateMachine.stateCount; index++)
         {
             S state = stateMachine.GetState(index);
+
+            SyncNode(state, stateMachine);
+
             Styles.Color color = state.isDefault ? Styles.Color.Orange : Styles.Color.Gray;
             bool on = forcusedState == state;
-            if (stateMachine.currentState == state)
+
+            if (stateMachine.currentState == state && !state.isDefault)
             {
                 color = Styles.Color.Aqua;
-                on = true;
             }
             GUIStyle nodeStyle = Styles.GetNodeStyle("node", color, @on);
             EditorGUI.BeginChangeCheck();
+            state.position.height = GetStateHeight(state);
             Rect pos = GUI.Window(index, state.position, (id) =>
             {
                 S _state = stateMachine.GetState(id);
                 if (isClicked)
                 {
                     forcusedState = _state;
-                    Type inspectorWindow = Types.GetType("UnityEditor.InspectorWindow", "UnityEditor.dll");
-                    if (stateMachineInspectorWindow == null)
-                        stateMachineInspectorWindow = GetWindow<StateMachineInspectorWindow>(inspectorWindow);
-                    stateMachineInspectorWindow.SetStateMachine<M, S, T>(window, stateMachine, _state);
-                    stateMachineInspectorWindow.Repaint();
+                    if (nodes.ContainsKey(forcusedState))
+                        Selection.activeObject = nodes[forcusedState];
                     Repaint();
                 }
 
+                EditorGUI.BeginChangeCheck();
                 OnStateGUI(_state);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Save();
+                }
+
                 DisPlayStatePopupMenu(_state);
                 GUI.DragWindow(new Rect(0, 0, state.position.width, 20));
             }, state.stateName, nodeStyle);
@@ -255,16 +315,33 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             {
                 if (forcusedState != null && startMakeTransition != forcusedState)
                 {
+                    RegisterUndo("Added Transion");
                     stateMachine.AddTransition(startMakeTransition, forcusedState);
-                    stateMachineInspectorWindow.SetStateMachine<M, S, T>(window, stateMachine, forcusedState);
-                    stateMachineInspectorWindow.Repaint();
                 }
                 startMakeTransition = null;
+                Repaint();
             }
         }
-        DrawTransitions();
+
 
         DisPlayStateMachinePopupMenu();
+    }
+
+    private void SyncNode(S state, M stateMachine)
+    {
+        if (!nodes.ContainsKey(state))
+        {
+            StateNode stateNode = CreateInstance<StateNode>();
+            stateNode.stateID = state.uniqueID;
+            stateNode.stateMachine = stateMachine;
+            nodes.Add(state, stateNode);
+        }
+    }
+
+    private void Save()
+    {
+        EditorUtility.SetDirty(controller);
+        AssetDatabase.SaveAssets();
     }
 
 
@@ -276,17 +353,24 @@ public class StateMachineWindow<M, S, T> : EditorWindow
 
             if (blendShapeTransition == null)
             {
+                RegisterUndo("Removed Transition");
                 stateMachine.RemoveTransition(i);
                 break;
             }
             DrawTransition(stateMachine.UniqueIDToState(blendShapeTransition.fromStateUniqueID), stateMachine.UniqueIDToState(blendShapeTransition.toStateNameUniqueID), blendShapeTransition.selected);
         }
     }
-    protected virtual void OnStateGUI(S state)
+    public virtual void OnStateGUI(S state)
     {
         // StateのGUI (Window)
 
     }
+
+    public virtual float GetStateHeight(S state)
+    {
+        return 60;
+    }
+
     GraphGUI GetEditor(Graph graph)
     {
         var graphGUI = CreateInstance("GraphGUI") as GraphGUI;
@@ -322,13 +406,32 @@ public class StateMachineWindow<M, S, T> : EditorWindow
 
     void DrawNodeCurve(Rect start, Rect end, bool selected = false)
     {
-        Vector3 startPos = new Vector3(start.x + start.width, start.y + start.height * 0.5f, 0);
-        Vector3 endPos = new Vector3(end.x, end.y + end.height * 0.5f, 0);
-        Vector3 startTan = startPos + Vector3.right * 50;
-        Vector3 endTan = endPos + Vector3.left * 50;
+        Vector3 startPos = new Vector3(start.x + start.width / 2, start.y + start.height * 0.5f, 0);
+        Vector3 endPos = new Vector3(end.x + end.width / 2, end.y + end.height * 0.5f, 0);
         Handles.color = selected ? Color.red : Color.white;
-        Handles.DrawAAPolyLine(3, endPos + new Vector3(-1, 1, 0) * 10, endPos, endPos + new Vector3(-1, -1, 0) * 10);
-        Handles.DrawBezier(startPos, endPos, startTan, endTan, selected ? Color.red : Color.white, null, 5);
+        Vector3 cross = Vector3.Cross((startPos - endPos).normalized, Vector3.forward);
+        startPos += cross * 5;
+        Vector3 vector = endPos - startPos;
+        Vector3 direction = vector.normalized;
+        Vector3 center = vector * 0.5f + startPos;
+        center -= cross * 0.5f;
+        center += 13 * direction;
+
+        List<Vector3> arraws = new List<Vector3>();
+        for (int i = 0; i < 15; i++)
+        {
+            Vector3[] arraowPos = new Vector3[]
+        {
+            center + direction* i,
+            (center - direction* i) + cross* i,
+            (center - direction* i) - cross* i,
+            center + direction* i
+        };
+            arraws.AddRange(arraowPos);
+        }
+
+        Handles.DrawAAPolyLine(EditorGUIUtility.whiteTexture, 2f, arraws.ToArray());
+        Handles.DrawAAPolyLine((Texture2D)UnityEditor.Graphs.Styles.connectionTexture.image, 5f, new Vector3[] { startPos, endPos });
     }
 
     void DisPlayStateMachinePopupMenu()
@@ -339,7 +442,6 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             {
                 new GUIContent("Add State"), 
             };
-
 
             EditorUtility.DisplayCustomMenu(new Rect(0, 0, 100, 100), options, -1,
                StateContextMenu, Event.current.mousePosition);
@@ -352,11 +454,11 @@ public class StateMachineWindow<M, S, T> : EditorWindow
         var options = new GUIContent[]
             {
                 new GUIContent("String"), 
-                 new GUIContent("Bool"), 
-                  new GUIContent("Int"), 
-                   new GUIContent("Float"), 
-                    new GUIContent("Vector2"), 
-                     new GUIContent("Vector3"),
+                new GUIContent("Bool"), 
+                new GUIContent("Int"), 
+                new GUIContent("Float"), 
+                new GUIContent("Vector2"), 
+                new GUIContent("Vector3"),
             };
 
         if (genericMenu.GetItemCount() == 0)
@@ -365,6 +467,7 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             {
                 genericMenu.AddItem(guiContent, false, (obj) =>
                 {
+                    RegisterUndo("New Parameter");
                     switch ((string)obj)
                     {
                         case "String":
@@ -386,9 +489,15 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                             stateMachine.SetVector3("New Vector3", Vector3.zero);
                             break;
                     }
+                    Save();
                 }, guiContent.text);
             }
         }
+    }
+
+    private void RegisterUndo(string undoName)
+    {
+        RegisterUndo(undoName);
     }
 
     void DisPlayStatePopupMenu(S state)
@@ -429,16 +538,20 @@ public class StateMachineWindow<M, S, T> : EditorWindow
                 startMakeTransition = state;
                 break;
             case "Add State":
+                RegisterUndo("Added State");
                 stateMachine.AddState("New State");
                 break;
             case "Set Default":
+
                 state = userData as S;
                 if (state == null) return;
+                RegisterUndo("Change Default");
                 stateMachine.SetDefault(state);
                 break;
             case "Duplicate State":
                 state = userData as S;
                 if (state == null) return;
+                RegisterUndo("Duplicated State");
                 S clone = (S)state.Clone();
                 clone.isDefault = false;
                 stateMachine.AddState(clone);
@@ -446,22 +559,18 @@ public class StateMachineWindow<M, S, T> : EditorWindow
             case "Delete State":
                 state = userData as S;
                 if (state == null) return;
+                RegisterUndo("Deleted State");
                 stateMachine.RemoveState(state);
                 break;
 
             default: break;
         }
+        Save();
     }
 
     void Update()
     {
         if (EditorApplication.isPlaying || startMakeTransition != null)
             Repaint();
-
-        if (controller != null && stateMachine != controller.currentStateMachine)
-        {
-            stateMachine = controller.currentStateMachine;
-            Repaint();
-        }
     }
 }

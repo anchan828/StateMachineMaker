@@ -9,11 +9,12 @@ using System;
 namespace Kyusyukeigo.StateMachine
 {
     [Serializable]
-    public class StateMachine<S, T> : ScriptableObject
+    public class StateMachine<S, T>
         where S : State
         where T : Transition
     {
-
+        public string name;
+        public string uniqueID = Guid.NewGuid().ToString();
         [SerializeField, HideInInspector]
         private List<S> states = new List<S>();
         [SerializeField, HideInInspector]
@@ -186,12 +187,7 @@ namespace Kyusyukeigo.StateMachine
         public S AddState(S state)
         {
             state.stateName = GetUniqName(state);
-            state.position = GetPosition(state.position);
-            state.uniqueID = state.GetHashCode();
             states.Add(state);
-#if UNITY_EDITOR
-            EditorApplication.SaveAssets();
-#endif
             return state;
         }
 
@@ -229,7 +225,7 @@ namespace Kyusyukeigo.StateMachine
         /// </summary>
         /// <param name="uniqueID"></param>
         /// <returns></returns>
-        public S UniqueIDToState(int uniqueID)
+        public S UniqueIDToState(string uniqueID)
         {
             return states.First(state => state.uniqueID == uniqueID);
         }
@@ -245,7 +241,7 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// uniqueIDからStateがStateMachine内に存在するか確認します
         /// </summary>
-        public bool HasStateFromUniqueID(int uniqueID)
+        public bool HasStateFromUniqueID(string uniqueID)
         {
             return states.Count(state => state.uniqueID == uniqueID) != 0;
         }
@@ -323,7 +319,7 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// fromからtoへのTransitionがStateMachine内に存在するか確認します
         /// </summary>
-        public bool HasTransitionFromUniqueID(int fromStateUniqID, int toStateNameUniqID)
+        public bool HasTransitionFromUniqueID(string fromStateUniqID, string toStateNameUniqID)
         {
             if (!HasStateFromUniqueID(fromStateUniqID) || !HasStateFromUniqueID(toStateNameUniqID))
             {

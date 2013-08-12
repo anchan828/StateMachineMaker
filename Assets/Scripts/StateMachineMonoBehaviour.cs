@@ -13,12 +13,12 @@ namespace Kyusyukeigo.StateMachine
         where S : State
         where TS : Transition
     {
-        protected virtual bool OnWillTransition(State from, State to)
+        protected virtual bool OnWillTransition(S from, S to)
         {
             return true;
         }
 
-        protected virtual void MovedState(State currentState)
+        protected virtual void MovedState(S currentState)
         {
         }
 

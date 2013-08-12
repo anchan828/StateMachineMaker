@@ -13,7 +13,7 @@ namespace Kyusyukeigo.StateMachine
         /// <summary>
         /// StateのユニークID
         /// </summary>
-        public int fromStateUniqueID, toStateNameUniqueID;
+        public string fromStateUniqueID, toStateNameUniqueID;
         public bool selected;
         /// <summary>
         /// parameterのKey名

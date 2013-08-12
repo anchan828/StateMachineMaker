@@ -9,25 +9,39 @@ public class ExampleStateMachineMonoBehavior
     ExampleTransition>
 {
 
-    void OnGUI()
+
+    public GameObject quad;
+    private int time;
+    IEnumerator Start()
     {
-        int i = stateMachineController.currentStateMachine.GetInt("intval");
-        GUILayout.Label(i.ToString());
-        float horizontalSlider = GUILayout.HorizontalSlider(i, 0, 11, GUILayout.Width(Screen.width));
-        if (GUI.changed)
+        quad.renderer.sharedMaterial.mainTexture = stateMachineController.currentStateMachine.currentState.texture;
+      
+        while (true)
         {
-            stateMachineController.currentStateMachine.SetInt("intval", (int)horizontalSlider);
+            yield return new WaitForSeconds(1);
+            stateMachineController.currentStateMachine.SetInt("intval", ++time);
         }
+       
     }
 
-    protected override bool OnWillTransition(State @from, State to)
+   
+
+
+    protected override bool OnWillTransition(ExampleState exampleState, ExampleState state)
     {
         return true;
     }
 
-    protected override void MovedState(State currentState)
+    protected override void MovedState(ExampleState exampleState)
     {
-        GameObject primitive = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        primitive.AddComponent<Rigidbody>();
+        Debug.Log(exampleState);
+        if (exampleState.isDefault)
+        {
+            stateMachineController.currentStateMachine.SetInt("intval", 0);
+            time = 0;
+        }
+
+        quad.renderer.sharedMaterial.mainTexture = exampleState.texture;
+
     }
 }

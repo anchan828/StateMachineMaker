@@ -17,7 +17,6 @@ namespace Kyusyukeigo.StateMachine
         where S : State
         where TS : Transition
     {
-
         public StateMachineController()
         {
             // TODO どうにかしてIconを変更したい...
@@ -46,6 +45,7 @@ namespace Kyusyukeigo.StateMachine
                 return stateMachines.Count;
             }
         }
+
         [HideInInspector]
         public int selectedStateMachine = 0; // Base
 
@@ -73,7 +73,7 @@ namespace Kyusyukeigo.StateMachine
         {
             return stateMachines;
         }
-        
+
         public M GetStateMeshine(int index)
         {
             return index <= stateMahineCount ? stateMachines[index] : null;
@@ -87,11 +87,6 @@ namespace Kyusyukeigo.StateMachine
             stateMachine.name = count == 0 ? stateMachineName : stateMachineName + " " + count;
             stateMachines.Add(stateMachine);
             #if UNITY_EDITOR
-            string assetPath = AssetDatabase.GetAssetPath(GetInstanceID());
-            stateMachine.hideFlags = HideFlags.HideInInspector;
-            AssetDatabase.AddObjectToAsset(stateMachine, assetPath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
             #endif
         }
 

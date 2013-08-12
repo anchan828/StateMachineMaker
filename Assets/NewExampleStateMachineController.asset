@@ -9,207 +9,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d24790b97f9245689d2cfeb4a47346b, type: 3}
-  m_Name: Settings
+  m_Name: NewExampleStateMachineController
   m_EditorClassIdentifier: 
   selectedStateMachine: 0
   stateMachines:
-  - {fileID: 11400002}
-  - {fileID: 11400004}
-  - {fileID: 11400006}
-  - {fileID: 11400008}
-  - {fileID: 11400010}
-  - {fileID: 11400012}
-  - {fileID: 11400014}
-  - {fileID: 11400016}
---- !u!114 &11400002
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: -1927317376
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400004
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 1
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: -1971558016
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400006
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 2
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: -1795725824
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400008
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 3
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: 88451904
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400010
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 4
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: 1637420672
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400012
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 5
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: -256863744
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400014
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 6
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: -1221258816
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
---- !u!114 &11400016
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25df00cb15b974d81b4850786f0650e0, type: 3}
-  m_Name: NewStateMachine 7
-  m_EditorClassIdentifier: 
-  states:
-  - stateName: New State
-    isDefault: 0
-    uniqueID: 1706153856
-    position:
-      serializedVersion: 2
-      x: 0
-      y: 0
-      width: 170
-      height: 60
-    hogehooge: 
-  transitions: []
-  parameters: []
+  - name: NewStateMachine
+    uniqueID: 5cf5fca9-de1a-4d10-85e9-0fe8c9a1a399
+    states:
+    - stateName: New State
+      isDefault: 1
+      uniqueID: c3a7b8ef-26ff-445b-8f96-717111cdf8b5
+      position:
+        serializedVersion: 2
+        x: -126
+        y: -20
+        width: 170
+        height: 150
+      hogehooge: 
+      texture: {fileID: 2800000, guid: cd5e0800140a142dd9f7ed98bfecb993, type: 3}
+    - stateName: New State 1
+      isDefault: 0
+      uniqueID: 84dfa340-f3ce-4fa3-a3ed-e7ebd18c5bd9
+      position:
+        serializedVersion: 2
+        x: 223
+        y: -18
+        width: 170
+        height: 150
+      hogehooge: 
+      texture: {fileID: 2800000, guid: cec94c882cd084a1085c7edb070082d0, type: 3}
+    - stateName: New State 2
+      isDefault: 0
+      uniqueID: a953e144-a442-4dda-86d7-96209b3e8796
+      position:
+        serializedVersion: 2
+        x: 48
+        y: -19
+        width: 170
+        height: 150
+      hogehooge: 
+      texture: {fileID: 0}
+    transitions: []
+    parameters: []

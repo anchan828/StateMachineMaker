@@ -4,7 +4,7 @@ using Kyusyukeigo.StateMachine;
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
-using Object = UnityEngine.Object;
+using Object = System.Object;
 
 [CustomEditor(typeof(StateMachineController<StateMachine<State, Transition>, State, Transition>))]
 public class StateMachineControllerInspector : Editor
@@ -25,10 +25,12 @@ public class StateMachineControllerInspector : Editor
         {
             AddStateMachine("NewStateMachine");
         }
+       
         for (int i = 0; i < stateMahineCount; i++)
         {
-            
+
             Object stateMachine = GetStateMeshine(i);
+            Debug.Log(stateMachine);
             GUIStyle style = new GUIStyle("box");
 
             if (currentStateMachine == stateMachine)
@@ -39,10 +41,10 @@ public class StateMachineControllerInspector : Editor
             EditorGUILayout.BeginHorizontal(style);
             GUILayout.Label(i.ToString(), GUILayout.Width(32));
             EditorGUI.BeginChangeCheck();
-            string value = EditorGUILayout.TextField(stateMachine.name);
+            string value = EditorGUILayout.TextField(GetStateMachineName(stateMachine));
             if (EditorGUI.EndChangeCheck())
             {
-                stateMachine.name = value;
+                SetStateMachineName(stateMachine, value);
                 EditorApplication.RepaintProjectWindow();
             }
 
@@ -83,15 +85,15 @@ public class StateMachineControllerInspector : Editor
         }
     }
 
-//    protected string GetStateMachineName(Object stateMachine)
-//    {
-//        return (string)stateMachine.GetType().GetField("name").GetValue(stateMachine);
-//    }
+    protected string GetStateMachineName(Object stateMachine)
+    {
+        return (string)stateMachine.GetType().GetField("name").GetValue(stateMachine);
+    }
 
-//    protected void SetStateMachineName(Object stateMachine, string name)
-//    {
-//        stateMachine.GetType().GetField("name").SetValue(stateMachine, name);
-//    }
+    protected void SetStateMachineName(Object stateMachine, string name)
+    {
+        stateMachine.GetType().GetField("name").SetValue(stateMachine, name);
+    }
 
     protected void AddStateMachine(string stateMachineName)
     {
