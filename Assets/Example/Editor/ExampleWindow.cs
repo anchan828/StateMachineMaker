@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Kyusyukeigo.StateMachine;
+using StateMachineMaker;
 using UnityEngine;
 using UnityEditor;
 public class ExampleWindow : StateMachineWindow<ExampleStateMachine, ExampleState, ExampleTransition>

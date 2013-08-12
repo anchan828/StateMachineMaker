@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace Kyusyukeigo.StateMachine
+namespace StateMachineMaker
 {
     public abstract class StateMachineMonoBehaviour<T, M, S, TS> : UnityEngine.MonoBehaviour
         where T : StateMachineController<M, S, TS>

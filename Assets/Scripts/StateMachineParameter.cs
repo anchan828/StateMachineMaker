@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-namespace Kyusyukeigo.StateMachine
+namespace StateMachineMaker
 {
     [Serializable]
     public class StateMachineParameter
@@ -23,9 +23,4 @@ namespace Kyusyukeigo.StateMachine
         public Vector3 vector3Value;
     }
 
-    [Serializable]
-    public enum ParameterType
-    {
-        String, Bool, Int, Float, Vector2, Vector3,
-    }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Kyusyukeigo.StateMachine;
+using StateMachineMaker;
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;

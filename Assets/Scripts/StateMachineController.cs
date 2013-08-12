@@ -2,14 +2,14 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using Kyusyukeigo.StateMachine;
+using StateMachineMaker;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Kyusyukeigo.StateMachine
+namespace StateMachineMaker
 {
     [System.Serializable]
     public class StateMachineController<M, S, TS> : ScriptableObject

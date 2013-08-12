@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [Serializable]
-public class ExampleState : Kyusyukeigo.StateMachine.State
+public class ExampleState : StateMachineMaker.State
 {
     public string hogehooge;
     public Texture2D texture;

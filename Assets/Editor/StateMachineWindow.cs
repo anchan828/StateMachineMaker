@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Kyusyukeigo.StateMachine;
+using StateMachineMaker;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.Graphs;

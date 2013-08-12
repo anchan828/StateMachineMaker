@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Kyusyukeigo.StateMachine
+namespace StateMachineMaker
 {
     [Serializable]
     public class State

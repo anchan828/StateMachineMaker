@@ -6,7 +6,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 
-namespace Kyusyukeigo.StateMachine
+namespace StateMachineMaker
 {
     [Serializable]
     public class StateMachine<S, T>

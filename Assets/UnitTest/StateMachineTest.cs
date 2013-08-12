@@ -1,4 +1,4 @@
-﻿using Kyusyukeigo.StateMachine;
+﻿using StateMachineMaker;
 using NUnit.Framework;
 
 [TestFixture]

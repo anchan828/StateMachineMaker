@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Kyusyukeigo.StateMachine;
+using StateMachineMaker;
 using UnityEditor;
 using UnityEngine;
 public class StateInspector<M, S, TS> : Editor
