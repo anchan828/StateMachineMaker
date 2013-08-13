@@ -1,9 +1,12 @@
 ﻿using System;
 using UnityEngine;
 
-public class StateNode : ScriptableObject
+namespace StateMachineMaker
 {
-    public string stateID;
-    public object stateMachine;
-    public Type controllerType;
+    public class StateNode : ScriptableObject
+    {
+        public Type controllerType;
+        public string stateID;
+        public object stateMachine;
+    }
 }

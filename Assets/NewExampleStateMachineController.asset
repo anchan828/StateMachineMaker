@@ -11,10 +11,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d24790b97f9245689d2cfeb4a47346b, type: 3}
   m_Name: NewExampleStateMachineController
   m_EditorClassIdentifier: 
-  selectedStateMachine: 0
   stateMachines:
-  - name: NewStateMachine
-    uniqueID: e18b61e9-da6d-4641-8bb2-fb981d3ceb99
+  - states:
+    - color: 3
+      isDefault: 0
+      position:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 170
+        height: 60
+      stateName: New State
+      uniqueID: 7ddb63d1-9cce-4962-aa76-34ad983bd9bc
+      hogehooge: 
+      texture: {fileID: 0}
+    transitions: []
+    name: NewStateMachine
+    parameters: []
     style:
       m_Name: 
       m_Normal:
@@ -74,18 +87,5 @@ MonoBehaviour:
       m_FixedHeight: 0
       m_StretchWidth: 1
       m_StretchHeight: 0
-    states:
-    - stateName: New State
-      isDefault: 1
-      uniqueID: ad6fba06-8203-4b33-8043-2fa9a6035f04
-      position:
-        serializedVersion: 2
-        x: 47
-        y: 104
-        width: 200
-        height: 100
-      color: 3
-      hogehooge: 
-      texture: {fileID: 0}
-    transitions: []
-    parameters: []
+    uniqueID: d1b223ff-7476-4c87-838e-f45d82a2d287
+  selectedStateMachine: 0

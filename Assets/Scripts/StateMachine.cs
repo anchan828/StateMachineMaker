@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using System.Text;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using System.Linq;
+using System.Text;
+using UnityEngine;
 
 namespace StateMachineMaker
 {
@@ -14,33 +11,32 @@ namespace StateMachineMaker
         where S : State
         where T : Transition
     {
-        public string name;
-        public string uniqueID = Guid.NewGuid().ToString();
-
-        public GUIStyle style;
         [SerializeField, HideInInspector]
         private List<S> states = new List<S>();
         [SerializeField, HideInInspector]
         private List<T> transitions = new List<T>();
+        private S _currentState = null;
+        public string name;
+
         [SerializeField, HideInInspector]
-        public List<StateMachineParameter> parameters = new List<StateMachineParameter>();
-        /// <summary>
-        /// StateMachine内にあるStateの数
-        /// </summary>
-        public int stateCount
-        {
-            get
-            {
-                return states.Count;
-            }
-        }
+        public List<StateMachineParameter> parameters =
+            new List<StateMachineParameter>();
 
         [NonSerialized]
         private int selectedState = -1;
+        public GUIStyle style;
+        public string uniqueID = Guid.NewGuid().ToString();
 
-        private S _currentState = null;
         /// <summary>
-        /// 現在選択中のStateMachineを取得します
+        ///     StateMachine内にあるStateの数
+        /// </summary>
+        public int stateCount
+        {
+            get { return states.Count; }
+        }
+
+        /// <summary>
+        ///     現在選択中のStateMachineを取得します
         /// </summary>
         public S currentState
         {
@@ -80,24 +76,21 @@ namespace StateMachineMaker
             }
         }
 
+        /// <summary>
+        ///     StateMachine内にあるTransitionの数
+        /// </summary>
+        public int transitionCount
+        {
+            get { return transitions.Count; }
+        }
+
         public void SetCurrentState(S state)
         {
             selectedState = states.IndexOf(state);
         }
 
         /// <summary>
-        /// StateMachine内にあるTransitionの数
-        /// </summary>
-        public int transitionCount
-        {
-            get
-            {
-                return transitions.Count;
-            }
-        }
-
-        /// <summary>
-        /// StateMachine内のStateをすべて取得します
+        ///     StateMachine内のStateをすべて取得します
         /// </summary>
         public List<S> GetAllStates()
         {
@@ -105,7 +98,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// StateMachine内のTransitionをすべて取得します
+        ///     StateMachine内のTransitionをすべて取得します
         /// </summary>
         public List<T> GetAllTransitions()
         {
@@ -113,24 +106,23 @@ namespace StateMachineMaker
         }
 
 
-
         /// <summary>
-        /// Stateに付加しているTransitionをすべて取得します
+        ///     Stateに付加しているTransitionをすべて取得します
         /// </summary>
         public List<T> GetTransitionOfState(S state)
         {
-            List<T> list = new List<T>();
+            var list = new List<T>();
             list.AddRange(GetTransitionOfFromState(state));
             list.AddRange(GetTransitionOfToState(state));
             return list;
         }
 
         /// <summary>
-        /// Stateへ移動してくるTransitionをすべて取得します
+        ///     Stateへ移動してくるTransitionをすべて取得します
         /// </summary>
         public List<T> GetTransitionOfFromState(S state)
         {
-            List<T> list = new List<T>();
+            var list = new List<T>();
             foreach (T transition in transitions)
             {
                 if (transition.toStateNameUniqueID == state.uniqueID)
@@ -140,12 +132,13 @@ namespace StateMachineMaker
             }
             return list;
         }
+
         /// <summary>
-        /// 別のStateへ移動するTrnsitionをすべて取得します
+        ///     別のStateへ移動するTrnsitionをすべて取得します
         /// </summary>
         public List<T> GetTransitionOfToState(S state)
         {
-            List<T> list = new List<T>();
+            var list = new List<T>();
             foreach (T transition in transitions)
             {
                 if (transition.fromStateUniqueID == state.uniqueID)
@@ -155,28 +148,29 @@ namespace StateMachineMaker
             }
             return list;
         }
+
         /// <summary>
-        /// StateNameでStateを作成＆追加します
+        ///     StateNameでStateを作成＆追加します
         /// </summary>
         /// <param name="stateName">すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)</param>
         public S AddState(string stateName)
         {
-            S state = Activator.CreateInstance<S>();
+            var state = Activator.CreateInstance<S>();
             state.stateName = GetUniqName(stateName);
             return AddState(state);
         }
 
         /// <summary>
-        /// StateNameでStateを作成＆追加します
+        ///     StateNameでStateを作成＆追加します
         /// </summary>
         /// <param name="stateName">すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)</param>
         public S[] AddState(params string[] stateNames)
         {
             var _states = new List<S>();
 
-            foreach (var stateName in stateNames)
+            foreach (string stateName in stateNames)
             {
-                S state = Activator.CreateInstance<S>();
+                var state = Activator.CreateInstance<S>();
                 state.stateName = GetUniqName(stateName);
                 _states.Add(AddState(state));
             }
@@ -184,8 +178,8 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// Stateを追加します
-        /// すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)
+        ///     Stateを追加します
+        ///     すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)
         /// </summary>
         public S AddState(S state)
         {
@@ -196,12 +190,12 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// Stateを追加します
-        /// すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)
+        ///     Stateを追加します
+        ///     すでに同じ名前があるときユニークな名前に変更される(例 Hoge -> Hoge 1)
         /// </summary>
         public S[] AddState(params S[] states)
         {
-            foreach (var state in states)
+            foreach (S state in states)
             {
                 AddState(state);
             }
@@ -209,7 +203,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// indexからStateを取得します
+        ///     indexからStateを取得します
         /// </summary>
         /// <param name="index"></param>
         public S GetState(int index)
@@ -218,14 +212,15 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// StateNameからStateを取得します
+        ///     StateNameからStateを取得します
         /// </summary>
         public S GetState(string stateName)
         {
             return states.First(state => state.stateName == stateName);
         }
+
         /// <summary>
-        /// ユニークIDからStateへ変換します
+        ///     ユニークIDからStateへ変換します
         /// </summary>
         /// <param name="uniqueID"></param>
         /// <returns></returns>
@@ -235,7 +230,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// StateNameからStateがStateMachine内に存在するか確認します
+        ///     StateNameからStateがStateMachine内に存在するか確認します
         /// </summary>
         public bool HasState(string stateName)
         {
@@ -243,7 +238,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// uniqueIDからStateがStateMachine内に存在するか確認します
+        ///     uniqueIDからStateがStateMachine内に存在するか確認します
         /// </summary>
         public bool HasStateFromUniqueID(string uniqueID)
         {
@@ -251,7 +246,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// StateがStateMachine内に存在するか確認します
+        ///     StateがStateMachine内に存在するか確認します
         /// </summary>
         public bool HasState(S state)
         {
@@ -259,7 +254,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// StateMachine内に存在するStateを削除します
+        ///     StateMachine内に存在するStateを削除します
         /// </summary>
         public void RemoveState(S state)
         {
@@ -267,7 +262,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// StateMachine内に存在するTransitionを削除します
+        ///     StateMachine内に存在するTransitionを削除します
         /// </summary>
         public void RemoveTransition(T transition)
         {
@@ -275,7 +270,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// indexからStateMachine内に存在するTransitionを削除します
+        ///     indexからStateMachine内に存在するTransitionを削除します
         /// </summary>
         public void RemoveTransition(int index)
         {
@@ -283,8 +278,8 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// デフォルトを設定する
-        /// FIXME isDefaultがreadonlyではないのでどうにかする
+        ///     デフォルトを設定する
+        ///     FIXME isDefaultがreadonlyではないのでどうにかする
         /// </summary>
         /// <param name="state"></param>
         public void SetDefault(S state)
@@ -296,11 +291,11 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// fromからtoへのTransitionを作成＆追加します
+        ///     fromからtoへのTransitionを作成＆追加します
         /// </summary>
         public T AddTransition(S from, S to)
         {
-            T transition = Activator.CreateInstance<T>();
+            var transition = Activator.CreateInstance<T>();
             transition.fromStateUniqueID = @from.uniqueID;
             transition.toStateNameUniqueID = to.uniqueID;
             transition.name = GetUniqName(@from, to);
@@ -310,7 +305,7 @@ namespace StateMachineMaker
 
 
         /// <summary>
-        /// fromからtoへのTransitionを作成＆追加します
+        ///     fromからtoへのTransitionを作成＆追加します
         /// </summary>
         public T AddTransition(string fromStateName, string toStateName)
         {
@@ -321,7 +316,7 @@ namespace StateMachineMaker
 
 
         /// <summary>
-        /// fromからtoへのTransitionがStateMachine内に存在するか確認します
+        ///     fromからtoへのTransitionがStateMachine内に存在するか確認します
         /// </summary>
         public bool HasTransitionFromUniqueID(string fromStateUniqID, string toStateNameUniqID)
         {
@@ -333,7 +328,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// fromからtoへのTransitionがStateMachine内に存在するか確認します
+        ///     fromからtoへのTransitionがStateMachine内に存在するか確認します
         /// </summary>
         public bool HasTransition(S from, S to)
         {
@@ -341,11 +336,11 @@ namespace StateMachineMaker
                 transitions.Count(
                     transition =>
                         (transition.fromStateUniqueID == from.uniqueID
-                            && transition.toStateNameUniqueID == to.uniqueID)) != 0;
+                         && transition.toStateNameUniqueID == to.uniqueID)) != 0;
         }
 
         /// <summary>
-        /// indexからTransitionを取得します
+        ///     indexからTransitionを取得します
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
@@ -358,7 +353,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// ユニークなState名を取得します
+        ///     ユニークなState名を取得します
         /// </summary>
         private string GetUniqName(S state)
         {
@@ -366,7 +361,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// ユニークなState名を取得します
+        ///     ユニークなState名を取得します
         /// </summary>
         private string GetUniqName(string stateName)
         {
@@ -375,7 +370,7 @@ namespace StateMachineMaker
         }
 
         /// <summary>
-        /// ユニークなState名を取得します
+        ///     ユニークなState名を取得します
         /// </summary>
         private string GetUniqName(S from, S to)
         {
@@ -388,12 +383,13 @@ namespace StateMachineMaker
         {
             state.position = GetPosition(new Rect(pos.x, pos.y, state.position.width, state.position.height));
         }
+
         /// <summary>
-        /// ユニークなRect値を設定します
+        ///     ユニークなRect値を設定します
         /// </summary>
         private Rect GetPosition(Rect position)
         {
-            Rect pos = new Rect(position);
+            var pos = new Rect(position);
             if (states.Count(state => (state.position.x == position.x) && (state.position.y == position.y)) != 0)
             {
                 pos.x += pos.width * 0.5f;
@@ -410,38 +406,42 @@ namespace StateMachineMaker
 
         public void SetString(string key, string value)
         {
-            var parameter = GetParameter(key);
+            StateMachineParameter parameter = GetParameter(key);
             parameter.value = value;
             parameter.parameterType = ParameterType.String;
         }
 
         public void SetBool(string key, bool value)
         {
-            var parameter = GetParameter(key);
+            StateMachineParameter parameter = GetParameter(key);
             parameter.value = value;
             parameter.parameterType = ParameterType.Bool;
         }
+
         public void SetInt(string key, int value)
         {
-            var parameter = GetParameter(key);
+            StateMachineParameter parameter = GetParameter(key);
             parameter.value = value;
             parameter.parameterType = ParameterType.Int;
         }
+
         public void SetFloat(string key, float value)
         {
-            var parameter = GetParameter(key);
+            StateMachineParameter parameter = GetParameter(key);
             parameter.value = value;
             parameter.parameterType = ParameterType.Float;
         }
+
         public void SetVector2(string key, Vector2 value)
         {
-            var parameter = GetParameter(key);
+            StateMachineParameter parameter = GetParameter(key);
             parameter.value = value;
             parameter.parameterType = ParameterType.Vector2;
         }
+
         public void SetVector3(string key, Vector3 value)
         {
-            var parameter = GetParameter(key);
+            StateMachineParameter parameter = GetParameter(key);
             parameter.value = value;
             parameter.parameterType = ParameterType.Vector3;
         }
@@ -450,26 +450,31 @@ namespace StateMachineMaker
         {
             return (string)GetParameter(key).value ?? "";
         }
+
         public bool GetBool(string key)
         {
             object val = GetParameter(key).value ?? false;
             return (bool)val;
         }
+
         public int GetInt(string key)
         {
             object val = GetParameter(key).value ?? 0;
             return (int)val;
         }
+
         public float GetFloat(string key)
         {
             object val = GetParameter(key).value ?? 0f;
             return (float)val;
         }
+
         public Vector2 GetVector2(string key)
         {
             object val = GetParameter(key).value ?? Vector2.zero;
             return (Vector2)val;
         }
+
         public Vector3 GetVector3(string key)
         {
             object val = GetParameter(key).value ?? Vector3.zero;
@@ -499,7 +504,7 @@ namespace StateMachineMaker
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (S state in GetAllStates())
             {
                 sb.AppendLine(state.ToString());

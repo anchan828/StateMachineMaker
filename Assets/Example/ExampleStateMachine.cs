@@ -1,7 +1,7 @@
 ﻿using System;
+using StateMachineMaker;
 
 [Serializable]
-public class ExampleStateMachine : StateMachineMaker.StateMachine<ExampleState,ExampleTransition>
+public class ExampleStateMachine : StateMachine<ExampleState, ExampleTransition>
 {
-   
 }

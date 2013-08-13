@@ -7,19 +7,7 @@ namespace StateMachineMaker
 {
     public class Styles
     {
-
-        static Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
-
-        private static void Load()
-        {
-            sprites = new Dictionary<string, Sprite>();
-            string[] loadAllAssetsAtPath = Directory.GetFiles("Assets/Editor/Images/");
-            foreach (string key in loadAllAssetsAtPath)
-            {
-                string spriteName = Path.GetFileNameWithoutExtension(key);
-                sprites.Add(spriteName, new Sprite(key));
-            }
-        }
+        private static Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
 
         public static GUIStyle BackgroudStyle
         {
@@ -33,6 +21,17 @@ namespace StateMachineMaker
                 if (EditorGUIUtility.isProSkin)
                     key += "_p";
                 return sprites[key].style;
+            }
+        }
+
+        private static void Load()
+        {
+            sprites = new Dictionary<string, Sprite>();
+            string[] loadAllAssetsAtPath = Directory.GetFiles("Assets/Editor/Images/");
+            foreach (string key in loadAllAssetsAtPath)
+            {
+                string spriteName = Path.GetFileNameWithoutExtension(key);
+                sprites.Add(spriteName, new Sprite(key));
             }
         }
 
@@ -53,6 +52,8 @@ namespace StateMachineMaker
 
         private class Sprite
         {
+            public GUIStyle style;
+
             public Sprite(string path)
             {
                 style = new GUIStyle();
@@ -60,12 +61,9 @@ namespace StateMachineMaker
                 style.padding = new RectOffset(0, 0, 29, 0);
                 style.overflow = new RectOffset(7, 7, 6, 9);
                 style.alignment = TextAnchor.UpperCenter;
-                style.normal.background = AssetDatabase.LoadAssetAtPath(path, typeof(Texture2D)) as Texture2D;
+                style.normal.background = AssetDatabase.LoadAssetAtPath(path, typeof (Texture2D)) as Texture2D;
                 style.contentOffset = new Vector2(0, -22);
             }
-
-            public GUIStyle style;
         }
-
     }
 }

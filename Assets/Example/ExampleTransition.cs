@@ -1,6 +1,7 @@
 ﻿using System;
+using StateMachineMaker;
 
 [Serializable]
-public class ExampleTransition : StateMachineMaker.Transition
+public class ExampleTransition : Transition
 {
 }

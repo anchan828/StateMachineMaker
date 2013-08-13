@@ -5,6 +5,11 @@ namespace StateMachineMaker
     [Serializable]
     public enum ParameterType
     {
-        String, Bool, Int, Float, Vector2, Vector3,
+        String,
+        Bool,
+        Int,
+        Float,
+        Vector2,
+        Vector3
     }
 }

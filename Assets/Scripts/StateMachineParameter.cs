@@ -1,19 +1,17 @@
-﻿
-using System;
-using UnityEngine;
+﻿using System;
 
 namespace StateMachineMaker
 {
     [Serializable]
     public class StateMachineParameter
     {
+        public string name;
+        public ParameterType parameterType;
+        public object value;
+
         public StateMachineParameter(string name)
         {
             this.name = name;
         }
-        public string name;
-        public ParameterType parameterType;
-        public object value;
     }
-
 }

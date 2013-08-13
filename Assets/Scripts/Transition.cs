@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using UnityEngine;
 
 namespace StateMachineMaker
 {
@@ -8,37 +7,42 @@ namespace StateMachineMaker
     public class Transition
     {
         /// <summary>
-        /// Transiiton名
+        ///     StateのユニークID
+        /// </summary>
+        public string fromStateUniqueID;
+
+        /// <summary>
+        ///     Transiiton名
         /// </summary>
         public string name;
 
         /// <summary>
-        /// StateのユニークID
-        /// </summary>
-        public string fromStateUniqueID, toStateNameUniqueID;
-
-        public bool selected;
-
-        /// <summary>
-        /// parameterのKey名
-        /// </summary>
-        public string parameterKey;
-
-        /// <summary>
-        /// 遷移する必要条件
-        /// 設定されているパラメータタイプ
-        /// </summary>
-        public ParameterType parameterType;
-
-        /// <summary>
-        /// 遷移する必要条件
+        ///     遷移する必要条件
         /// </summary>
         public Necessary necessary;
 
         /// <summary>
-        /// 遷移するときの必要条件値
+        ///     遷移するときの必要条件値
         /// </summary>
         public object necessaryValue;
+
+        /// <summary>
+        ///     parameterのKey名
+        /// </summary>
+        public string parameterKey;
+
+        /// <summary>
+        ///     遷移する必要条件
+        ///     設定されているパラメータタイプ
+        /// </summary>
+        public ParameterType parameterType;
+
+        public bool selected;
+
+        /// <summary>
+        ///     StateのユニークID
+        /// </summary>
+        public string toStateNameUniqueID;
 
         public override string ToString()
         {

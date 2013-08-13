@@ -1,8 +1,8 @@
-﻿using UnityEditor;
+﻿using StateMachineMaker;
+using UnityEditor;
 using UnityEngine;
-using System.Collections;
 
-[CustomEditor(typeof(ExampleStateMachineController))]
+[CustomEditor(typeof (ExampleStateMachineController))]
 public class ExampleStateMachineControllerInspector : StateMachineControllerInspector
 {
     public override void OnInspectorGUI()
@@ -14,4 +14,3 @@ public class ExampleStateMachineControllerInspector : StateMachineControllerInsp
         base.OnInspectorGUI();
     }
 }
-
