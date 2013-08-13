@@ -14,39 +14,77 @@ MonoBehaviour:
   selectedStateMachine: 0
   stateMachines:
   - name: NewStateMachine
-    uniqueID: 6d55b6a4-c15d-49c1-b8a1-00e64a1ef6fe
+    uniqueID: e18b61e9-da6d-4641-8bb2-fb981d3ceb99
+    style:
+      m_Name: 
+      m_Normal:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Hover:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Active:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Focused:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnNormal:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnHover:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnActive:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnFocused:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Border:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Margin:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Padding:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Overflow:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Font: {fileID: 0}
+      m_FontSize: 0
+      m_FontStyle: 0
+      m_Alignment: 0
+      m_WordWrap: 0
+      m_RichText: 1
+      m_TextClipping: 0
+      m_ImagePosition: 0
+      m_ContentOffset: {x: 0, y: 0}
+      m_FixedWidth: 0
+      m_FixedHeight: 0
+      m_StretchWidth: 1
+      m_StretchHeight: 0
     states:
     - stateName: New State
       isDefault: 1
-      uniqueID: 54f52149-80d1-42d1-b850-590952178916
+      uniqueID: ad6fba06-8203-4b33-8043-2fa9a6035f04
       position:
         serializedVersion: 2
-        x: -94
-        y: -53
-        width: 170
-        height: 150
-      hogehooge: 
-      texture: {fileID: 0}
-    - stateName: New State 1
-      isDefault: 0
-      uniqueID: a8e316e0-b39a-4466-bfae-b98f077f46c6
-      position:
-        serializedVersion: 2
-        x: 156
-        y: -101
-        width: 170
-        height: 150
-      hogehooge: 
-      texture: {fileID: 0}
-    - stateName: New State 2
-      isDefault: 0
-      uniqueID: 55a1f2df-1b2b-4e19-8e3a-b5c0b1178bbd
-      position:
-        serializedVersion: 2
-        x: 545
-        y: 188
-        width: 170
-        height: 150
+        x: 47
+        y: 104
+        width: 200
+        height: 100
+      color: 3
       hogehooge: 
       texture: {fileID: 0}
     transitions: []
