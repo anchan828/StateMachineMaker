@@ -86,8 +86,8 @@ namespace StateMachineMaker
             int count = stateMachines.Count(sm => sm.name.StartsWith(stateMachineName));
             stateMachine.name = count == 0 ? stateMachineName : stateMachineName + " " + count;
             stateMachines.Add(stateMachine);
-            #if UNITY_EDITOR
-            #endif
+#if UNITY_EDITOR
+#endif
         }
 
         public void RemoveStateMachine(M stateMachine)
@@ -115,13 +115,12 @@ namespace StateMachineMaker
             stateMachineController.name = "New" + stateMachineController.GetType().Name;
             string uniqueAssetPath =
                 AssetDatabase.GenerateUniqueAssetPath(directoryPath + "/" + stateMachineController.name + ".asset");
+
+#endif
+            stateMachineController.AddStateMachine("NewStateMachine");
+#if UNITY_EDITOR
             AssetDatabase.CreateAsset(stateMachineController, uniqueAssetPath);
-            stateMachineController.AddStateMachine("NewStateMachine");
-            stateMachineController.name = "Settings";
             AssetDatabase.SaveAssets();
-#elif
-            stateMachineController.AddStateMachine("NewStateMachine");
-            stateMachineController.name = "Settings";
 #endif
             return stateMachineController;
         }

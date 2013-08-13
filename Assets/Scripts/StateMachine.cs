@@ -16,6 +16,8 @@ namespace StateMachineMaker
     {
         public string name;
         public string uniqueID = Guid.NewGuid().ToString();
+
+        public GUIStyle style;
         [SerializeField, HideInInspector]
         private List<S> states = new List<S>();
         [SerializeField, HideInInspector]
@@ -188,6 +190,7 @@ namespace StateMachineMaker
         public S AddState(S state)
         {
             state.stateName = GetUniqName(state);
+            state.position = GetPosition(state.position);
             states.Add(state);
             return state;
         }
@@ -381,6 +384,10 @@ namespace StateMachineMaker
             return count == 0 ? transitionName : transitionName + " " + count;
         }
 
+        public void SetPosition(S state, Vector2 pos)
+        {
+            state.position = GetPosition(new Rect(pos.x, pos.y, state.position.width, state.position.height));
+        }
         /// <summary>
         /// ユニークなRect値を設定します
         /// </summary>

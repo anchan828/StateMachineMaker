@@ -28,6 +28,8 @@ namespace StateMachineMaker
         public static readonly float Width = 170, Height = 60;
         public Rect position = new Rect(0, 0, Width, Height);
 
+        public StateColor color = StateColor.Grey;
+
         public override string ToString()
         {
             return string.Format("[State] {0} {1} {2}", stateName, uniqueID, position);
@@ -35,7 +37,9 @@ namespace StateMachineMaker
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            State state = (State)MemberwiseClone();
+            state.uniqueID = Guid.NewGuid().ToString();
+            return state;
         }
     }
 }
