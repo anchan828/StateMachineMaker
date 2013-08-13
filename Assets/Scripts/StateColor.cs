@@ -1,7 +1,8 @@
 ﻿using System;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public enum StateColor
     {
@@ -13,4 +14,6 @@ namespace StateMachineMaker
         Red,
         Yellow,
     }
+#if !UNITY_3_5
 }
+#endif

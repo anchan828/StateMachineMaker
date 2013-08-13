@@ -1,7 +1,8 @@
 ﻿using System;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public enum Necessary
     {
@@ -12,4 +13,6 @@ namespace StateMachineMaker
         Less = 4,
         LessOrEqual = 5,
     }
+#if !UNITY_3_5
 }
+#endif

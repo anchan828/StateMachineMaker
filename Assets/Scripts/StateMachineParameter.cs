@@ -1,7 +1,8 @@
 ﻿using System;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public class StateMachineParameter
     {
@@ -14,4 +15,6 @@ namespace StateMachineMaker
             this.name = name;
         }
     }
+#if !UNITY_3_5
 }
+#endif

@@ -6,9 +6,10 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public class StateMachineController<M, S, TS> : ScriptableObject
         where M : StateMachine<S, TS>
@@ -70,7 +71,7 @@ namespace StateMachineMaker
 
         protected static T CreateAssets<T>() where T : StateMachineController<M, S, TS>
         {
-            var stateMachineController = CreateInstance<T>();
+            T stateMachineController = CreateInstance<T>();
             string directoryPath = "Assets";
 #if UNITY_EDITOR
             if (Selection.activeObject)
@@ -112,4 +113,6 @@ namespace StateMachineMaker
             return stateMachines[selectedStateMachine];
         }
     }
+#if !UNITY_3_5
 }
+#endif

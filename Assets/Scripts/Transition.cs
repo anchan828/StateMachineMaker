@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Text;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
-    [Serializable]
+#endif
+
+[Serializable]
     public class Transition
     {
         /// <summary>
@@ -54,4 +56,6 @@ namespace StateMachineMaker
             return sb.ToString();
         }
     }
+#if !UNITY_3_5
 }
+#endif

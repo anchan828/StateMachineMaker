@@ -4,9 +4,10 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     /// <summary>
     ///     FIXME 継承が気持ち悪いのでどうにかする...
     /// </summary>
@@ -66,16 +67,16 @@ namespace StateMachineMaker
         private static void SetUpControllerAndStateMachine(int instanceID)
         {
             string assetPath = AssetDatabase.GetAssetPath(instanceID);
-            Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof (Object));
+            Object obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Object));
             if (!obj && Selection.activeObject)
             {
                 assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
-                obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof (Object));
+                obj = AssetDatabase.LoadAssetAtPath(assetPath, typeof(Object));
             }
             if (obj is StateMachineController<M, S, T>)
             {
-                controller = (StateMachineController<M, S, T>) obj;
-                EditorUserSettings.SetConfigValue("LastController", controller.GetInstanceID().ToString());
+                controller = (StateMachineController<M, S, T>)obj;
+                EditorPrefs.SetInt("StateMachineMackerLastController", controller.GetInstanceID());
             }
         }
 
@@ -98,14 +99,14 @@ namespace StateMachineMaker
             {
                 foreach (StateMachineParameter stateMachineParameter in stateMachine.parameters)
                 {
-                    EditorGUILayout.BeginHorizontal(GUILayout.Width(parametorWindow.width*0.9f));
+                    EditorGUILayout.BeginHorizontal(GUILayout.Width(parametorWindow.width * 0.9f));
                     stateMachineParameter.name = GUILayout.TextField(stateMachineParameter.name);
                     EditorGUI.BeginChangeCheck();
                     switch (stateMachineParameter.parameterType)
                     {
                         case ParameterType.String:
                             object val = stateMachineParameter.value ?? "";
-                            string stringValue = GUILayout.TextField((string) val);
+                            string stringValue = GUILayout.TextField((string)val);
                             if (EditorGUI.EndChangeCheck())
                             {
                                 RegisterUndo("Sync StringValue");
@@ -114,7 +115,7 @@ namespace StateMachineMaker
                             break;
                         case ParameterType.Bool:
                             val = stateMachineParameter.value ?? false;
-                            bool boolValue = GUILayout.Toggle((bool) val, GUIContent.none);
+                            bool boolValue = GUILayout.Toggle((bool)val, GUIContent.none);
                             if (EditorGUI.EndChangeCheck())
                             {
                                 RegisterUndo("Sync BoolValue");
@@ -123,7 +124,7 @@ namespace StateMachineMaker
                             break;
                         case ParameterType.Int:
                             val = stateMachineParameter.value ?? 0;
-                            int intValue = EditorGUILayout.IntField((int) val);
+                            int intValue = EditorGUILayout.IntField((int)val);
                             if (EditorGUI.EndChangeCheck())
                             {
                                 RegisterUndo("Sync IntValue");
@@ -132,7 +133,7 @@ namespace StateMachineMaker
                             break;
                         case ParameterType.Float:
                             val = stateMachineParameter.value ?? 0f;
-                            float floatValue = EditorGUILayout.FloatField((float) val);
+                            float floatValue = EditorGUILayout.FloatField((float)val);
                             if (EditorGUI.EndChangeCheck())
                             {
                                 stateMachineParameter.value = floatValue;
@@ -140,7 +141,7 @@ namespace StateMachineMaker
                             break;
                         case ParameterType.Vector2:
                             val = stateMachineParameter.value ?? Vector2.zero;
-                            var val2 = (Vector2) val;
+                            var val2 = (Vector2)val;
                             float x = val2.x, y = val2.y;
                             x = EditorGUILayout.FloatField(x);
                             y = EditorGUILayout.FloatField(y);
@@ -153,7 +154,7 @@ namespace StateMachineMaker
                             break;
                         case ParameterType.Vector3:
                             object _val3 = stateMachineParameter.value ?? Vector3.zero;
-                            var val3 = (Vector3) _val3;
+                            var val3 = (Vector3)_val3;
                             x = val3.x;
                             y = val3.y;
                             float z = val3.z;
@@ -194,17 +195,8 @@ namespace StateMachineMaker
 
         private static void GetController()
         {
-            string controllerValue = EditorUserSettings.GetConfigValue("LastController");
-            int controllerInstanceID;
-
-            if (int.TryParse(controllerValue, out controllerInstanceID))
-            {
-                SetUpControllerAndStateMachine(controllerInstanceID);
-            }
-            else
-            {
-                SetUpControllerAndStateMachine(Selection.activeInstanceID);
-            }
+            int controllerInstanceID = EditorPrefs.GetInt("StateMachineMackerLastController", 0);
+            SetUpControllerAndStateMachine(controllerInstanceID == 0 ? Selection.activeInstanceID : controllerInstanceID);
         }
 
         protected virtual void OnDisable()
@@ -227,18 +219,18 @@ namespace StateMachineMaker
 
         private void DrawGridLines(float gridSize, Color gridColor)
         {
-            float xMax = position.width*5, xMin = 0, yMax = position.height*5, yMin = 0;
+            float xMax = position.width * 5, xMin = 0, yMax = position.height * 5, yMin = 0;
             Handles.color = gridColor;
             GL.Color(gridColor);
-            float x = xMin - xMin%gridSize;
-            while (x < (double) xMax)
+            float x = xMin - xMin % gridSize;
+            while (x < (double)xMax)
             {
                 DrawLine(new Vector2(x, yMin), new Vector2(x, yMax));
                 x += gridSize;
             }
             GL.Color(gridColor);
-            float y = yMin - yMin%gridSize;
-            while (y < (double) yMax)
+            float y = yMin - yMin % gridSize;
+            while (y < (double)yMax)
             {
                 DrawLine(new Vector3(xMin, y, -1), new Vector3(xMax, y, 1));
                 y += gridSize;
@@ -280,7 +272,7 @@ namespace StateMachineMaker
                     }
                     else if (e.commandName == CommandName.Cut.ToString())
                     {
-                        cutStates = (S[]) forcusedStates.ToArray().Clone();
+                        cutStates = (S[])forcusedStates.ToArray().Clone();
                         DeletedState(forcusedStates);
                     }
                     else if (e.commandName == CommandName.Delete.ToString())
@@ -305,7 +297,7 @@ namespace StateMachineMaker
 
             if (isClicked)
             {
-                S[] states = stateMachine.GetAllStates().Where(IsClicked).ToArray();
+                S[] states = stateMachine.GetAllStates().Where(s => s != null).Where(IsClicked).ToArray();
                 if (states.Length == 0)
                 {
                     forcusedStates = new S[0];
@@ -334,9 +326,9 @@ namespace StateMachineMaker
                     {
                         if (forcusedStates.Length <= 1 || !forcusedStates.Contains(states[0]))
                         {
-                            forcusedStates = new[] {states[0]};
+                            forcusedStates = new[] { states[0] };
                             Selection.objects =
-                                new[] {states[0]}.Where(nodes.ContainsKey).Select(s => nodes[s]).ToArray();
+                                new[] { states[0] }.Where(nodes.ContainsKey).Select(s => nodes[s]).ToArray();
                         }
                     }
                 }
@@ -361,7 +353,7 @@ namespace StateMachineMaker
             if (stateMachine != null)
             {
                 scrollPos = GUI.BeginScrollView(new Rect(0, 0, position.width, position.height), scrollPos,
-                    new Rect(0, 0, position.width*2f, position.height*2f), false, false);
+                    new Rect(0, 0, position.width * 2f, position.height * 2f), false, false);
                 OnGraphGUI();
                 GUI.EndScrollView();
             }
@@ -430,7 +422,7 @@ namespace StateMachineMaker
                     //                Debug.Log("click " + (Event.current.type == EventType.ContextClick));
                 }, state.stateName, nodeStyle);
 
-                pos.x = Mathf.Clamp(pos.x, -pos.width*0.5f, float.MaxValue);
+                pos.x = Mathf.Clamp(pos.x, -pos.width * 0.5f, float.MaxValue);
                 pos.y = Mathf.Clamp(pos.y, ToolbarHeight, float.MaxValue);
                 if (state.position != pos)
                 {
@@ -477,7 +469,7 @@ namespace StateMachineMaker
         {
             if (!nodes.ContainsKey(state))
             {
-                var stateNode = CreateInstance<StateNode>();
+                var stateNode = ScriptableObject.CreateInstance<StateNode>();
                 stateNode.stateID = state.uniqueID;
                 stateNode.stateMachine = stateMachine;
                 nodes.Add(state, stateNode);
@@ -536,16 +528,16 @@ namespace StateMachineMaker
 
         private void DrawNodeCurve(Rect start, Rect end, bool selected = false)
         {
-            var startPos = new Vector3(start.x + start.width/2, start.y + start.height*0.5f, 0);
-            var endPos = new Vector3(end.x + end.width/2, end.y + end.height*0.5f, 0);
+            var startPos = new Vector3(start.x + start.width / 2, start.y + start.height * 0.5f, 0);
+            var endPos = new Vector3(end.x + end.width / 2, end.y + end.height * 0.5f, 0);
             Handles.color = selected ? Color.red : Color.white;
             Vector3 cross = Vector3.Cross((startPos - endPos).normalized, Vector3.forward);
-            startPos += cross*5;
+            startPos += cross * 5;
             Vector3 vector = endPos - startPos;
             Vector3 direction = vector.normalized;
-            Vector3 center = vector*0.5f + startPos;
-            center -= cross*0.5f;
-            center += 13*direction;
+            Vector3 center = vector * 0.5f + startPos;
+            center -= cross * 0.5f;
+            center += 13 * direction;
 
             var arraws = new List<Vector3>();
             for (int i = 0; i < 15; i++)
@@ -561,7 +553,7 @@ namespace StateMachineMaker
             }
 
 
-            Handles.DrawAAPolyLine(EditorGUIUtility.whiteTexture, 2f, new[] {startPos, endPos});
+            Handles.DrawAAPolyLine(EditorGUIUtility.whiteTexture, 2f, new[] { startPos, endPos });
             Handles.DrawAAPolyLine(EditorGUIUtility.whiteTexture, 2f, arraws.ToArray());
         }
 
@@ -599,7 +591,7 @@ namespace StateMachineMaker
                     genericMenu.AddItem(guiContent, false, obj =>
                     {
                         RegisterUndo("New Parameter");
-                        switch ((string) obj)
+                        switch ((string)obj)
                         {
                             case "String":
                                 stateMachine.SetString("New String", "");
@@ -658,7 +650,7 @@ namespace StateMachineMaker
                 };
 
                 EditorUtility.DisplayCustomMenu(
-                    new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y/2, 150, 100), options, -1,
+                    new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y / 2, 150, 100), options, -1,
                     StateContextMenu, state);
                 Event.current.Use();
             }
@@ -679,14 +671,14 @@ namespace StateMachineMaker
                 case "Make Transition":
                     state = userData as S;
                     if (state == null) return;
-                    forcusedStates = new[] {state};
-                    Selection.objects = new[] {nodes[state]};
+                    forcusedStates = new[] { state };
+                    Selection.objects = new[] { nodes[state] };
                     startMakeTransition = state;
                     break;
                 case "Add State":
                     RegisterUndo("Added State");
                     S s = stateMachine.AddState("New State");
-                    stateMachine.SetPosition(s, (Vector2) userData);
+                    stateMachine.SetPosition(s, (Vector2)userData);
                     break;
                 case "Set Default":
 
@@ -729,7 +721,7 @@ namespace StateMachineMaker
             RegisterUndo("Duplicated State");
             foreach (S state in states)
             {
-                var clone = (S) state.Clone();
+                var clone = (S)state.Clone();
                 clone.isDefault = false;
                 stateMachine.AddState(clone);
 
@@ -770,4 +762,6 @@ namespace StateMachineMaker
             SelectAll,
         }
     }
+#if !UNITY_3_5
 }
+#endif

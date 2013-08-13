@@ -2,9 +2,10 @@
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     public class StateInspector<M, S, TS> : Editor
         where M : StateMachine<S, TS>
         where TS : Transition
@@ -206,4 +207,6 @@ namespace StateMachineMaker
             }
         }
     }
+#if !UNITY_3_5
 }
+#endif

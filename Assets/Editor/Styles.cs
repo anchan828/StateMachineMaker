@@ -2,9 +2,10 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     public class Styles
     {
         private static Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
@@ -66,4 +67,6 @@ namespace StateMachineMaker
             }
         }
     }
+#if !UNITY_3_5
 }
+#endif

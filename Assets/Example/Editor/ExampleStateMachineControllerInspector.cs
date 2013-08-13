@@ -1,4 +1,6 @@
-﻿using StateMachineMaker;
+﻿#if !UNITY_3_5
+using StateMachineMaker;
+#endif
 using UnityEditor;
 using UnityEngine;
 

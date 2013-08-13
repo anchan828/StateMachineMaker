@@ -1,5 +1,7 @@
 ﻿using System.Collections;
+#if !UNITY_3_5
 using StateMachineMaker;
+#endif
 using UnityEngine;
 
 public class ExampleStateMachineMonoBehavior

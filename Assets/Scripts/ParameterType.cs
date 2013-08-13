@@ -1,7 +1,8 @@
 ﻿using System;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public enum ParameterType
     {
@@ -12,4 +13,6 @@ namespace StateMachineMaker
         Vector2,
         Vector3
     }
+#if !UNITY_3_5
 }
+#endif

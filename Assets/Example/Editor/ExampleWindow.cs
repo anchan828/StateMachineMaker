@@ -1,4 +1,6 @@
-﻿using StateMachineMaker;
+﻿#if !UNITY_3_5
+using StateMachineMaker;
+#endif
 using UnityEditor;
 using UnityEngine;
 
@@ -13,12 +15,15 @@ public class ExampleWindow : StateMachineWindow<ExampleStateMachine, ExampleStat
     public override void OnStateGUI(ExampleState state)
     {
         var guiStyle = new GUIStyle(EditorStyles.label);
-        guiStyle.richText = true;
-        GUILayout.Label("<color=black>ヾ(๑╹◡╹)ﾉ”</color>", guiStyle);
-        Vector2 mousePos = Event.current.mousePosition;
-        GUILayout.Label("<color=black>" + state.position + "</color>", guiStyle);
 
-        state.color = (StateColor) EditorGUILayout.EnumPopup("Color", state.color);
+
+#if UNITY_3_5
+        EditorGUIUtility.LookLikeControls(60);
+#endif
+        GUILayout.Label("ヾ(๑╹◡╹)ﾉ”", guiStyle);
+        GUILayout.Label(state.position.ToString(), guiStyle);
+
+        state.color = (StateColor)EditorGUILayout.EnumPopup("Color", state.color);
     }
 
     public override Vector2 GetStateSize(ExampleState state)

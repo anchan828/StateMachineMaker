@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     public abstract class StateMachineMonoBehaviour<T, M, S, TS> : MonoBehaviour
         where T : StateMachineController<M, S, TS>
         where M : StateMachine<S, TS>
@@ -121,4 +122,6 @@ namespace StateMachineMaker
             }
         }
     }
+#if !UNITY_3_5
 }
+#endif

@@ -1,9 +1,10 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using Object = System.Object;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [CustomEditor(typeof (StateMachineController<StateMachine<State, Transition>, State, Transition>))]
     public class StateMachineControllerInspector : Editor
     {
@@ -124,4 +125,6 @@ namespace StateMachineMaker
             target.GetType().GetField("selectedStateMachine").SetValue(target, index);
         }
     }
+#if !UNITY_3_5
 }
+#endif

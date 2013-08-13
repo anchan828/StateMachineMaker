@@ -1,8 +1,9 @@
 ﻿using System;
 using UnityEngine;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public class State
     {
@@ -43,4 +44,6 @@ namespace StateMachineMaker
             return state;
         }
     }
+#if !UNITY_3_5
 }
+#endif

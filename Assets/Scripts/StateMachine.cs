@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-
+#if !UNITY_3_5
 namespace StateMachineMaker
 {
+#endif
     [Serializable]
     public class StateMachine<S, T>
         where S : State
@@ -42,40 +43,39 @@ namespace StateMachineMaker
         {
             get
             {
-                if (states.Count == 0) return null;
-
-                S state = null;
-                if (selectedState == -1)
-                {
-                    state = states[0];
-                    selectedState = 0;
-                    for (int index = 0; index < states.Count; index++)
-                    {
-                        S _states = states[index];
-                        if (_states.isDefault)
-                        {
-                            selectedState = index;
-                            state = _states;
-                            break;
-                        }
-                    }
-                    if (selectedState == 0)
-                    {
-                        SetDefault(state);
-                    }
-                }
-                else
-                {
-                    state = GetState(selectedState);
-                }
-                if (state == null)
-                {
-                    Debug.LogError("Stateがありません");
-                }
-                return state;
+                return GetCurrentState();
             }
         }
 
+        private S GetCurrentState()
+        {
+            S state;
+            if (states.Count == 0) return null;
+            if (selectedState == -1)
+            {
+                state = states[0];
+                selectedState = 0;
+                for (int index = 0; index < states.Count; index++)
+                {
+                    S _states = states[index];
+                    if (_states.isDefault)
+                    {
+                        selectedState = index;
+                        state = _states;
+                        break;
+                    }
+                }
+                if (selectedState == 0)
+                {
+                    SetDefault(state);
+                }
+            }
+            else
+            {
+                state = GetState(selectedState);
+            }
+            return state;
+        }
         /// <summary>
         ///     StateMachine内にあるTransitionの数
         /// </summary>
@@ -390,7 +390,7 @@ namespace StateMachineMaker
         private Rect GetPosition(Rect position)
         {
             var pos = new Rect(position);
-            if (states.Count(state => (state.position.x == position.x) && (state.position.y == position.y)) != 0)
+            if (states.Count(state => (Mathf.Approximately(state.position.x, position.x)) && Mathf.Approximately(state.position.y, position.y)) != 0)
             {
                 pos.x += pos.width * 0.5f;
                 pos.y += pos.height * 0.5f;
@@ -515,7 +515,7 @@ namespace StateMachineMaker
                 sb.AppendLine(transition.ToString());
             }
 
-            foreach (StateMachineParameter parameter in parameters)
+            foreach (var parameter in parameters)
             {
                 sb.AppendLine(parameter.ToString());
             }
@@ -523,4 +523,6 @@ namespace StateMachineMaker
             return sb.ToString();
         }
     }
+#if !UNITY_3_5
 }
+#endif
