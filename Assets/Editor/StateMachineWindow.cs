@@ -267,8 +267,12 @@ namespace StateMachineMaker
                     }
                     else if (e.commandName == CommandName.Paste.ToString())
                     {
-                        if (copyStates != null)
-                            DuplicatedState(copyStates);
+                        if (copyStates != null || cutStates != null)
+                        {
+                            DuplicatedState(copyStates ?? cutStates);
+                            copyStates = null;
+                            cutStates = null;
+                        }
                     }
                     else if (e.commandName == CommandName.Cut.ToString())
                     {
@@ -561,13 +565,26 @@ namespace StateMachineMaker
         {
             if (Event.current.type == EventType.ContextClick)
             {
-                var options = new[]
-                {
-                    new GUIContent("Add State")
-                };
 
-                EditorUtility.DisplayCustomMenu(new Rect(0, 0, 100, 100), options, -1,
-                    StateContextMenu, Event.current.mousePosition);
+                genericMenu = new GenericMenu();
+                genericMenu.AddItem(new GUIContent("Add State"), false, (userData) => StateContextMenu(userData, new[] { "Add State" }, 0), Event.current.mousePosition);
+                if (cutStates != null || copyStates != null)
+                {
+                    genericMenu.AddItem(new GUIContent("Paste"), false, () =>
+                    {
+                        if (copyStates != null || cutStates != null)
+                        {
+                            DuplicatedState(copyStates ?? cutStates);
+                            copyStates = null;
+                            cutStates = null;
+                        }
+                    });
+                }
+                else
+                {
+                    genericMenu.AddDisabledItem(new GUIContent("Paste"));
+                }
+                genericMenu.ShowAsContext();
                 Event.current.Use();
             }
         }
@@ -583,38 +600,35 @@ namespace StateMachineMaker
                 new GUIContent("Vector2"),
                 new GUIContent("Vector3")
             };
-
-            if (genericMenu.GetItemCount() == 0)
+            genericMenu = new GenericMenu();
+            foreach (GUIContent guiContent in options)
             {
-                foreach (GUIContent guiContent in options)
+                genericMenu.AddItem(guiContent, false, obj =>
                 {
-                    genericMenu.AddItem(guiContent, false, obj =>
+                    RegisterUndo("New Parameter");
+                    switch ((string)obj)
                     {
-                        RegisterUndo("New Parameter");
-                        switch ((string)obj)
-                        {
-                            case "String":
-                                stateMachine.SetString("New String", "");
-                                break;
-                            case "Bool":
-                                stateMachine.SetBool("New Bool", false);
-                                break;
-                            case "Int":
-                                stateMachine.SetInt("New Int", 0);
-                                break;
-                            case "Float":
-                                stateMachine.SetFloat("New Float", 0.0f);
-                                break;
-                            case "Vector2":
-                                stateMachine.SetVector2("New Vector2", Vector2.zero);
-                                break;
-                            case "Vector3":
-                                stateMachine.SetVector3("New Vector3", Vector3.zero);
-                                break;
-                        }
-                        Save();
-                    }, guiContent.text);
-                }
+                        case "String":
+                            stateMachine.SetString("New String", "");
+                            break;
+                        case "Bool":
+                            stateMachine.SetBool("New Bool", false);
+                            break;
+                        case "Int":
+                            stateMachine.SetInt("New Int", 0);
+                            break;
+                        case "Float":
+                            stateMachine.SetFloat("New Float", 0.0f);
+                            break;
+                        case "Vector2":
+                            stateMachine.SetVector2("New Vector2", Vector2.zero);
+                            break;
+                        case "Vector3":
+                            stateMachine.SetVector3("New Vector3", Vector3.zero);
+                            break;
+                    }
+                    Save();
+                }, guiContent.text);
             }
         }
 
@@ -648,10 +662,12 @@ namespace StateMachineMaker
                     new GUIContent("Duplicate State"),
                     new GUIContent("Delete State")
                 };
-
-                EditorUtility.DisplayCustomMenu(
-                    new Rect(Event.current.mousePosition.x, Event.current.mousePosition.y / 2, 150, 100), options, -1,
-                    StateContextMenu, state);
+                genericMenu = new GenericMenu();
+                foreach (var guiContent in options)
+                {
+                    genericMenu.AddItem(guiContent, false, (userData) => StateContextMenu(userData, new[] { guiContent.text }, 0), state);
+                }
+                genericMenu.ShowAsContext();
                 Event.current.Use();
             }
         }
