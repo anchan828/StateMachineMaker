@@ -36,7 +36,7 @@ public class StateInspector<M, S, TS> : Editor
     }
 
 
-    public virtual void OnStateHeaderGUI(S state) 
+    public virtual void OnStateHeaderGUI(S state)
     {
         GUI.Box(new Rect(0, 0, Screen.width, 50), "", "In BigTitle");
         EditorGUILayout.Space();
@@ -137,48 +137,53 @@ public class StateInspector<M, S, TS> : Editor
         switch (transition.parameterType)
         {
             case ParameterType.String:
-                string valueString = EditorGUILayout.TextField(transition.necessaryValueString);
+                string valueString = EditorGUILayout.TextField((string)transition.necessaryValue);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    transition.necessaryValueString = valueString;
+                    transition.necessaryValue = valueString;
                 }
                 break;
             case ParameterType.Int:
-
-                int valueInt = EditorGUILayout.IntField(transition.necessaryValueInt);
+                object val = transition.necessaryValue ?? 0;
+                int valueInt = EditorGUILayout.IntField((int)val);
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    transition.necessaryValueInt = valueInt;
+                    transition.necessaryValue = valueInt;
 
                 }
                 break;
             case ParameterType.Float:
-                float valueFloat = EditorGUILayout.FloatField(transition.necessaryValueFloat);
+                val = transition.necessaryValue ?? 0f;
+                float valueFloat = EditorGUILayout.FloatField((float)val);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    transition.necessaryValueFloat = valueFloat;
+                    transition.necessaryValue = valueFloat;
                 }
                 break;
             case ParameterType.Vector2:
                 EditorGUILayout.BeginHorizontal();
-                float x = EditorGUILayout.FloatField(transition.necessaryValueVector2.x);
-                float y = EditorGUILayout.FloatField(transition.necessaryValueVector2.y);
+                val = transition.necessaryValue ?? Vector2.zero;
+                Vector2 val2 = (Vector2)val;
+                float x = EditorGUILayout.FloatField(val2.x);
+                float y = EditorGUILayout.FloatField(val2.y);
                 EditorGUILayout.EndHorizontal();
                 if (EditorGUI.EndChangeCheck())
                 {
-                    transition.necessaryValueVector2 = new Vector2(x, y);
+                    transition.necessaryValue = new Vector2(x, y);
                 }
                 break;
             case ParameterType.Vector3:
                 EditorGUILayout.BeginHorizontal();
-                x = EditorGUILayout.FloatField(transition.necessaryValueVector3.x);
-                y = EditorGUILayout.FloatField(transition.necessaryValueVector3.y);
-                float z = EditorGUILayout.FloatField(transition.necessaryValueVector3.z);
+                val = transition.necessaryValue ?? Vector3.zero;
+                Vector3 val3 = (Vector3)val;
+                x = EditorGUILayout.FloatField(val3.x);
+                y = EditorGUILayout.FloatField(val3.y);
+                float z = EditorGUILayout.FloatField(val3.z);
                 EditorGUILayout.EndHorizontal();
                 if (EditorGUI.EndChangeCheck())
                 {
-                    transition.necessaryValueVector3 = new Vector3(x, y, z);
+                    transition.necessaryValue = new Vector3(x, y, z);
                 }
                 break;
             case ParameterType.Bool:

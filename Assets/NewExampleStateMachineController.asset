@@ -14,37 +14,37 @@ MonoBehaviour:
   selectedStateMachine: 0
   stateMachines:
   - name: NewStateMachine
-    uniqueID: 5cf5fca9-de1a-4d10-85e9-0fe8c9a1a399
+    uniqueID: 6d55b6a4-c15d-49c1-b8a1-00e64a1ef6fe
     states:
     - stateName: New State
       isDefault: 1
-      uniqueID: c3a7b8ef-26ff-445b-8f96-717111cdf8b5
+      uniqueID: 54f52149-80d1-42d1-b850-590952178916
       position:
         serializedVersion: 2
-        x: -126
-        y: -20
+        x: -94
+        y: -53
         width: 170
         height: 150
       hogehooge: 
-      texture: {fileID: 2800000, guid: cd5e0800140a142dd9f7ed98bfecb993, type: 3}
+      texture: {fileID: 0}
     - stateName: New State 1
       isDefault: 0
-      uniqueID: 84dfa340-f3ce-4fa3-a3ed-e7ebd18c5bd9
+      uniqueID: a8e316e0-b39a-4466-bfae-b98f077f46c6
       position:
         serializedVersion: 2
-        x: 223
-        y: -18
+        x: 156
+        y: -101
         width: 170
         height: 150
       hogehooge: 
-      texture: {fileID: 2800000, guid: cec94c882cd084a1085c7edb070082d0, type: 3}
+      texture: {fileID: 0}
     - stateName: New State 2
       isDefault: 0
-      uniqueID: a953e144-a442-4dda-86d7-96209b3e8796
+      uniqueID: 55a1f2df-1b2b-4e19-8e3a-b5c0b1178bbd
       position:
         serializedVersion: 2
-        x: 48
-        y: -19
+        x: 545
+        y: 188
         width: 170
         height: 150
       hogehooge: 

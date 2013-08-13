@@ -30,7 +30,7 @@ namespace StateMachineMaker
 
         public override string ToString()
         {
-            return string.Format("[State] {0} {1}", stateName, uniqueID);
+            return string.Format("[State] {0} {1} {2}", stateName, uniqueID, position);
         }
 
         public object Clone()

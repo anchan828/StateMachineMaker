@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -403,65 +404,69 @@ namespace StateMachineMaker
         public void SetString(string key, string value)
         {
             var parameter = GetParameter(key);
-            parameter.stringValue = value;
+            parameter.value = value;
             parameter.parameterType = ParameterType.String;
         }
 
         public void SetBool(string key, bool value)
         {
             var parameter = GetParameter(key);
-            parameter.boolValue = value;
+            parameter.value = value;
             parameter.parameterType = ParameterType.Bool;
         }
         public void SetInt(string key, int value)
         {
             var parameter = GetParameter(key);
-            parameter.intValue = value;
+            parameter.value = value;
             parameter.parameterType = ParameterType.Int;
         }
         public void SetFloat(string key, float value)
         {
             var parameter = GetParameter(key);
-            parameter.floatValue = value;
+            parameter.value = value;
             parameter.parameterType = ParameterType.Float;
         }
         public void SetVector2(string key, Vector2 value)
         {
             var parameter = GetParameter(key);
-            parameter.vector2Value = value;
+            parameter.value = value;
             parameter.parameterType = ParameterType.Vector2;
         }
         public void SetVector3(string key, Vector3 value)
         {
             var parameter = GetParameter(key);
-            parameter.vector3Value = value;
+            parameter.value = value;
             parameter.parameterType = ParameterType.Vector3;
-
         }
 
         public string GetString(string key)
         {
-            return GetParameter(key).stringValue;
+            return (string)GetParameter(key).value ?? "";
         }
         public bool GetBool(string key)
         {
-            return GetParameter(key).boolValue;
+            object val = GetParameter(key).value ?? false;
+            return (bool)val;
         }
         public int GetInt(string key)
         {
-            return GetParameter(key).intValue;
+            object val = GetParameter(key).value ?? 0;
+            return (int)val;
         }
         public float GetFloat(string key)
         {
-            return GetParameter(key).floatValue;
+            object val = GetParameter(key).value ?? 0f;
+            return (float)val;
         }
         public Vector2 GetVector2(string key)
         {
-            return GetParameter(key).vector2Value;
+            object val = GetParameter(key).value ?? Vector2.zero;
+            return (Vector2)val;
         }
         public Vector3 GetVector3(string key)
         {
-            return GetParameter(key).vector3Value;
+            object val = GetParameter(key).value ?? Vector3.zero;
+            return (Vector3)val;
         }
 
         private StateMachineParameter GetParameter(string key)
@@ -483,6 +488,27 @@ namespace StateMachineMaker
             var parameter = new StateMachineParameter(key);
             parameters.Add(parameter);
             return parameter;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (S state in GetAllStates())
+            {
+                sb.AppendLine(state.ToString());
+            }
+
+            foreach (T transition in GetAllTransitions())
+            {
+                sb.AppendLine(transition.ToString());
+            }
+
+            foreach (StateMachineParameter parameter in parameters)
+            {
+                sb.AppendLine(parameter.ToString());
+            }
+
+            return sb.ToString();
         }
     }
 }

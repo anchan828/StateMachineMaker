@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using UnityEngine;
 
 namespace StateMachineMaker
@@ -10,11 +11,14 @@ namespace StateMachineMaker
         /// Transiiton名
         /// </summary>
         public string name;
+
         /// <summary>
         /// StateのユニークID
         /// </summary>
         public string fromStateUniqueID, toStateNameUniqueID;
+
         public bool selected;
+
         /// <summary>
         /// parameterのKey名
         /// </summary>
@@ -34,23 +38,16 @@ namespace StateMachineMaker
         /// <summary>
         /// 遷移するときの必要条件値
         /// </summary>
-        public string necessaryValueString;
-        public int necessaryValueInt;
-        public float necessaryValueFloat;
-        public Vector2 necessaryValueVector2;
-        public Vector3 necessaryValueVector3;
-    }
+        public object necessaryValue;
 
-   
-
-    [Serializable]
-    public enum Necessary
-    {
-        False = 0,
-        True = 1,
-        Greater = 2,
-        GreaterOrEqual = 3,
-        Less = 4,
-        LessOrEqual = 5,
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("Transition");
+            sb.AppendLine(name);
+            sb.AppendLine(parameterType.ToString());
+            sb.Append(parameterKey).Append(":").AppendLine(necessaryValue.ToString());
+            return sb.ToString();
+        }
     }
 }

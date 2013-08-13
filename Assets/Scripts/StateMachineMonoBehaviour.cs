@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace StateMachineMaker
 {
-    public abstract class StateMachineMonoBehaviour<T, M, S, TS> : UnityEngine.MonoBehaviour
+    public abstract class StateMachineMonoBehaviour<T, M, S, TS> : MonoBehaviour
         where T : StateMachineController<M, S, TS>
         where M : StateMachine<S, TS>
         where S : State
@@ -46,7 +46,7 @@ namespace StateMachineMaker
                 {
                     case ParameterType.String:
                         string s = currentStateMachine.GetString(transition.parameterKey);
-                        qualified = s == transition.necessaryValueString;
+                        qualified = s == (string)transition.necessaryValue;
                         break;
                     case ParameterType.Bool:
                         bool b = currentStateMachine.GetBool(transition.parameterKey);
@@ -57,16 +57,16 @@ namespace StateMachineMaker
                         switch (transition.necessary)
                         {
                             case Necessary.Greater:
-                                qualified = transition.necessaryValueInt < i;
+                                qualified = (int)transition.necessaryValue < i;
                                 break;
                             case Necessary.GreaterOrEqual:
-                                qualified = transition.necessaryValueInt <= i;
+                                qualified = (int)transition.necessaryValue <= i;
                                 break;
                             case Necessary.Less:
-                                qualified = i < transition.necessaryValueInt;
+                                qualified = i < (int)transition.necessaryValue;
                                 break;
                             case Necessary.LessOrEqual:
-                                qualified = i <= transition.necessaryValueInt;
+                                qualified = i <= (int)transition.necessaryValue;
                                 break;
                             case Necessary.False:
                             case Necessary.True:
@@ -75,22 +75,22 @@ namespace StateMachineMaker
                         }
                         break;
                     case ParameterType.Float:
-                          float f = currentStateMachine.GetFloat(transition.parameterKey);
+                        float f = currentStateMachine.GetFloat(transition.parameterKey);
                         switch (transition.necessary)
                         {
                             case Necessary.Greater:
-                                qualified = transition.necessaryValueInt < f;
+                                qualified = (float)transition.necessaryValue < f;
                                 break;
                             case Necessary.GreaterOrEqual:
                                 //　FIXME ここ怪しい  Mathf.Approximately()必要？
-                                qualified = transition.necessaryValueInt <= f;
+                                qualified = (float)transition.necessaryValue <= f;
                                 break;
                             case Necessary.Less:
-                                qualified = f < transition.necessaryValueInt;
+                                qualified = f < (float)transition.necessaryValue;
                                 break;
                             case Necessary.LessOrEqual:
                                 //　FIXME ここ怪しい  Mathf.Approximately()必要？
-                                qualified = f <= transition.necessaryValueInt;
+                                qualified = f <= (float)transition.necessaryValue;
                                 break;
                             case Necessary.False:
                             case Necessary.True:
@@ -103,8 +103,7 @@ namespace StateMachineMaker
                     case ParameterType.Vector3:
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
-
+                        break;
                 }
                 if (qualified)
                 {

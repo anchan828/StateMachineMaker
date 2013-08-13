@@ -11,16 +11,9 @@ namespace StateMachineMaker
         {
             this.name = name;
         }
-
         public string name;
-
         public ParameterType parameterType;
-        public string stringValue;
-        public bool boolValue;
-        public int intValue;
-        public float floatValue;
-        public Vector2 vector2Value;
-        public Vector3 vector3Value;
+        public object value;
     }
 
 }

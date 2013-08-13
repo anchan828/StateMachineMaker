@@ -1,10 +1,7 @@
-﻿using System.IO;
-using Kyusyukeigo.StateMachine;
+﻿using StateMachineMaker;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
-using System.Collections;
 
 [System.Serializable]
 public class ExampleStateMachineController : StateMachineController<ExampleStateMachine, ExampleState, ExampleTransition>
