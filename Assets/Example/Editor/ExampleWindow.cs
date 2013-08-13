@@ -13,14 +13,17 @@ public class ExampleWindow : StateMachineWindow<ExampleStateMachine, ExampleStat
 
     public override void OnStateGUI(ExampleState state)
     {
-        GUILayout.Label("ヾ(๑╹◡╹)ﾉ”");
-        GUILayout.Button("okok");
+        GUIStyle guiStyle = new GUIStyle(EditorStyles.label);
+        guiStyle.richText = true;
+        GUILayout.Label("<color=black>ヾ(๑╹◡╹)ﾉ”</color>", guiStyle);
+        Vector2 mousePos = Event.current.mousePosition;
+        GUILayout.Label("<color=black>" + state.position.ToString() + "</color>", guiStyle);
 
-        state.texture = (Texture2D)EditorGUILayout.ObjectField(state.texture, typeof(Texture2D), false, GUILayout.Width(64), GUILayout.Height(64));
+        state.color = (StateColor)EditorGUILayout.EnumPopup("Color", state.color);
     }
 
-    public override float GetStateHeight(ExampleState state)
+    public override Vector2 GetStateSize(ExampleState state)
     {
-        return 150;
+        return new Vector2(200, 100);
     }
 }
