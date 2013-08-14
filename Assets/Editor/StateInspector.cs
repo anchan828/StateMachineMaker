@@ -11,13 +11,17 @@ namespace StateMachineMaker
         where TS : Transition
         where S : State
     {
+        private bool isClicked
+        {
+            get { return (Event.current.button == 0) && (Event.current.type == EventType.MouseDown); }
+        }
         private Action DrawOnStateHeader, DrawState, DrawTransitions;
-
+        private bool saveFlag = false;
         public virtual void OnEnable()
         {
-            var stateNode = (StateNode) target;
+            var stateNode = (StateNode)target;
             if (stateNode.stateMachine == null) return;
-            var stateMachine = (M) stateNode.stateMachine;
+            var stateMachine = (M)stateNode.stateMachine;
             S state = stateMachine.UniqueIDToState(stateNode.stateID);
             SetUpInspector(stateMachine, state);
         }
@@ -44,7 +48,7 @@ namespace StateMachineMaker
             GUI.Box(new Rect(0, 0, Screen.width, 50), "", "In BigTitle");
             EditorGUILayout.Space();
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label((Texture) EditorGUIUtility.Load("Icons/Generated/State Icon.asset"), GUILayout.Width(40));
+            GUILayout.Label((Texture)EditorGUIUtility.Load("Icons/Generated/State Icon.asset"), GUILayout.Width(40));
 
             EditorGUILayout.BeginVertical();
 
@@ -68,7 +72,7 @@ namespace StateMachineMaker
             S toState = stateMachine.UniqueIDToState(transition.toStateNameUniqueID);
 
             string[] displayNames =
-                stateMachine.parameters.Select(paramater => paramater.name).ToArray();
+                stateMachine.parameters.Select(parameter => parameter.name).ToArray();
 
             EditorGUILayout.BeginVertical("box");
             EditorGUILayout.BeginHorizontal();
@@ -99,88 +103,130 @@ namespace StateMachineMaker
                 }
                 EditorGUI.BeginChangeCheck();
                 int value = EditorGUILayout.Popup(selected, displayNames);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    transition.parameterKey = displayNames[value];
-                    transition.parameterType = stateMachine.GetParameterType(transition.parameterKey);
-                }
+
                 switch (transition.parameterType)
                 {
                     case ParameterType.Bool:
                         transition.necessary =
                             (Necessary)
-                                EditorGUILayout.Popup((int) transition.necessary, new[] {"True", "False"});
+                                EditorGUILayout.Popup((int)transition.necessary, new[] { "True", "False" });
                         break;
                     case ParameterType.Int:
                     case ParameterType.Float:
 
-                        if ((int) transition.necessary < 2)
+                        if ((int)transition.necessary < 2)
                         {
                             transition.necessary = Necessary.Greater;
                         }
                         transition.necessary =
                             (Necessary)
-                                EditorGUILayout.Popup((int) transition.necessary - 2,
-                                    Enum.GetNames(typeof (Necessary)).Skip(2).ToArray()) + 2;
+                                EditorGUILayout.Popup((int)transition.necessary - 2,
+                                    Enum.GetNames(typeof(Necessary)).Skip(2).ToArray()) + 2;
                         break;
-                    case ParameterType.String:
-                    case ParameterType.Vector2:
-                    case ParameterType.Vector3:
                     default:
                         break;
                 }
-
+                if (EditorGUI.EndChangeCheck())
+                {
+                    transition.parameterKey = displayNames[value];
+                    transition.parameterType = stateMachine.GetParameterType(transition.parameterKey);
+                    saveFlag = true;
+                }
                 OnNecessaryValueGUI(transition);
                 EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndVertical();
+            var lastRect = GUILayoutUtility.GetLastRect();
+            if (isClicked)
+            {
+                transition.selected = lastRect.Contains(Event.current.mousePosition);
+                WindowRepaint();
+            }
+            if (transition.selected)
+            {
+                Handles.color = Color.red;
+                var pos = new[]
+                {
+                    new Vector3(lastRect.x, lastRect.y),
+                    new Vector3(lastRect.x+lastRect.width,lastRect.y), 
+                    new Vector3(lastRect.x+lastRect.width,lastRect.y+lastRect.height), 
+                    new Vector3(lastRect.x,lastRect.y+lastRect.height), 
+                    new Vector3(lastRect.x, lastRect.y)
+                };
+                Handles.DrawPolyLine(pos);
+                Repaint();
+            }
+            
+        }
+
+        private void WindowRepaint()
+        {
+            var windows = Resources.FindObjectsOfTypeAll(typeof(StateMachineWindow<M, S, TS>));
+            foreach (StateMachineWindow<M, S, TS> window in windows)
+            {
+                window.Repaint();
+            }
+        }
+        private void Save()
+        {
+            var windows = Resources.FindObjectsOfTypeAll(typeof(StateMachineWindow<M, S, TS>));
+            foreach (StateMachineWindow<M, S, TS> window in windows)
+            {
+                window.Save();
+            }
         }
 
         private void OnNecessaryValueGUI(Transition transition)
         {
             EditorGUI.BeginChangeCheck();
+
             switch (transition.parameterType)
             {
                 case ParameterType.String:
-                    string valueString = EditorGUILayout.TextField((string) transition.necessaryValue);
+                    string valueString = EditorGUILayout.TextField((string)transition.necessaryValue);
                     if (EditorGUI.EndChangeCheck())
                     {
                         transition.necessaryValue = valueString;
+                        saveFlag = true;
                     }
                     break;
                 case ParameterType.Int:
                     object val = transition.necessaryValue ?? 0;
-                    int valueInt = EditorGUILayout.IntField((int) val);
+                    GUI.SetNextControlName("textField");
+                    int valueInt = EditorGUILayout.IntField((int)val);
 
                     if (EditorGUI.EndChangeCheck())
                     {
                         transition.necessaryValue = valueInt;
+                        saveFlag = true;
                     }
                     break;
                 case ParameterType.Float:
                     val = transition.necessaryValue ?? 0f;
-                    float valueFloat = EditorGUILayout.FloatField((float) val);
+                    float valueFloat = EditorGUILayout.FloatField((float)val);
                     if (EditorGUI.EndChangeCheck())
                     {
                         transition.necessaryValue = valueFloat;
+                        saveFlag = true;
                     }
                     break;
                 case ParameterType.Vector2:
                     EditorGUILayout.BeginHorizontal();
                     val = transition.necessaryValue ?? Vector2.zero;
-                    var val2 = (Vector2) val;
+                    var val2 = (Vector2)val;
                     float x = EditorGUILayout.FloatField(val2.x);
                     float y = EditorGUILayout.FloatField(val2.y);
                     EditorGUILayout.EndHorizontal();
                     if (EditorGUI.EndChangeCheck())
                     {
                         transition.necessaryValue = new Vector2(x, y);
+                        saveFlag = true;
                     }
                     break;
                 case ParameterType.Vector3:
                     EditorGUILayout.BeginHorizontal();
                     val = transition.necessaryValue ?? Vector3.zero;
-                    var val3 = (Vector3) val;
+                    var val3 = (Vector3)val;
                     x = EditorGUILayout.FloatField(val3.x);
                     y = EditorGUILayout.FloatField(val3.y);
                     float z = EditorGUILayout.FloatField(val3.z);
@@ -188,6 +234,7 @@ namespace StateMachineMaker
                     if (EditorGUI.EndChangeCheck())
                     {
                         transition.necessaryValue = new Vector3(x, y, z);
+                        saveFlag = true;
                     }
                     break;
                 case ParameterType.Bool:
@@ -204,6 +251,11 @@ namespace StateMachineMaker
                 DrawOnStateHeader();
                 DrawState();
                 DrawTransitions();
+            }
+            if (saveFlag && string.IsNullOrEmpty(GUI.GetNameOfFocusedControl()))
+            {
+                Save();
+                saveFlag = false;
             }
         }
     }

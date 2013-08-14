@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Reflection;
 #if !UNITY_3_5
 using StateMachineMaker;
 #endif
@@ -20,7 +21,7 @@ public class ExampleStateMachineMonoBehavior
         while (true)
         {
             yield return new WaitForSeconds(1);
-            stateMachineController.currentStateMachine.SetInt("intval", ++time);
+            stateMachineController.currentStateMachine.SetInt("New Int", (int)Mathf.Repeat(++time, 10));
         }
     }
 
@@ -34,7 +35,7 @@ public class ExampleStateMachineMonoBehavior
     {
         if (exampleState.isDefault)
         {
-            stateMachineController.currentStateMachine.SetInt("intval", 0);
+            stateMachineController.currentStateMachine.SetInt("New Int", 0);
             time = 0;
         }
 

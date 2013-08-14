@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 #if !UNITY_3_5
 namespace StateMachineMaker
 {
@@ -44,27 +49,27 @@ namespace StateMachineMaker
                 {
                     case ParameterType.String:
                         string s = currentStateMachine.GetString(transition.parameterKey);
-                        qualified = s == (string) transition.necessaryValue;
+                        qualified = s == (string)transition.necessaryValue;
                         break;
                     case ParameterType.Bool:
                         bool b = currentStateMachine.GetBool(transition.parameterKey);
-                        qualified = Convert.ToInt32(b) == (int) transition.necessary;
+                        qualified = Convert.ToInt32(b) == (int)transition.necessary;
                         break;
                     case ParameterType.Int:
                         int i = currentStateMachine.GetInt(transition.parameterKey);
                         switch (transition.necessary)
                         {
                             case Necessary.Greater:
-                                qualified = (int) transition.necessaryValue < i;
+                                qualified = (int)transition.necessaryValue < i;
                                 break;
                             case Necessary.GreaterOrEqual:
-                                qualified = (int) transition.necessaryValue <= i;
+                                qualified = (int)transition.necessaryValue <= i;
                                 break;
                             case Necessary.Less:
-                                qualified = i < (int) transition.necessaryValue;
+                                qualified = i < (int)transition.necessaryValue;
                                 break;
                             case Necessary.LessOrEqual:
-                                qualified = i <= (int) transition.necessaryValue;
+                                qualified = i <= (int)transition.necessaryValue;
                                 break;
                             case Necessary.False:
                             case Necessary.True:
@@ -77,18 +82,18 @@ namespace StateMachineMaker
                         switch (transition.necessary)
                         {
                             case Necessary.Greater:
-                                qualified = (float) transition.necessaryValue < f;
+                                qualified = (float)transition.necessaryValue < f;
                                 break;
                             case Necessary.GreaterOrEqual:
                                 //　FIXME ここ怪しい  Mathf.Approximately()必要？
-                                qualified = (float) transition.necessaryValue <= f;
+                                qualified = (float)transition.necessaryValue <= f;
                                 break;
                             case Necessary.Less:
-                                qualified = f < (float) transition.necessaryValue;
+                                qualified = f < (float)transition.necessaryValue;
                                 break;
                             case Necessary.LessOrEqual:
                                 //　FIXME ここ怪しい  Mathf.Approximately()必要？
-                                qualified = f <= (float) transition.necessaryValue;
+                                qualified = f <= (float)transition.necessaryValue;
                                 break;
                             case Necessary.False:
                             case Necessary.True:
@@ -118,6 +123,18 @@ namespace StateMachineMaker
             if (OnWillTransition(@from, to))
             {
                 currentStateMachine.SetCurrentState(to);
+#if UNITY_EDITOR
+                var windows = Resources.FindObjectsOfTypeAll(typeof(EditorWindow));
+                foreach (EditorWindow window in windows)
+                {
+                    var methodInfo = window.GetType().GetMethod("DrawTransitionMove", BindingFlags.Public | BindingFlags.Instance);
+                    if (methodInfo != null)
+                    {
+                        methodInfo.Invoke(window, new object[] { from, to });
+                    }
+                }
+#endif
+
                 MovedState(to);
             }
         }

@@ -404,6 +404,23 @@ namespace StateMachineMaker
             return GetParameter(key).parameterType;
         }
 
+        public void CreateParameter(string parameterName, ParameterType type)
+        {
+            var parameter = new StateMachineParameter { name = GetUniqueName(parameterName, type), parameterType = type };
+            parameters.Add(parameter);
+        }
+
+        public void DeleteParameter(StateMachineParameter parameter)
+        {
+            parameters.Remove(parameter);
+        }
+
+        private string GetUniqueName(string parameterName, ParameterType type)
+        {
+            int count = parameters.Count(param => param.name.StartsWith(parameterName));
+            return count == 0 ? parameterName : parameterName + " " + count;
+        }
+
         public void SetString(string key, string value)
         {
             StateMachineParameter parameter = GetParameter(key);
@@ -490,15 +507,7 @@ namespace StateMachineMaker
             }
             catch (InvalidOperationException)
             {
-                parameter = CreteStateMachineParameter(key);
             }
-            return parameter;
-        }
-
-        private StateMachineParameter CreteStateMachineParameter(string key)
-        {
-            var parameter = new StateMachineParameter(key);
-            parameters.Add(parameter);
             return parameter;
         }
 

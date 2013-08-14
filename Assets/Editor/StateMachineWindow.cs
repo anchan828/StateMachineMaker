@@ -18,12 +18,11 @@ namespace StateMachineMaker
     {
         private const int ToolbarHeight = 24;
         private static StateMachineController<M, S, T> controller;
-        private GenericMenu genericMenu = new GenericMenu();
         private Dictionary<S, StateNode> nodes = new Dictionary<S, StateNode>();
         private S[] copyStates, cutStates;
         private S[] forcusedStates = new S[0];
         private long lastCommandTime;
-        private Rect parametorWindow = new Rect(0, 0, 0, 0);
+
         private bool preDragging;
         private Vector2 scrollPos = Vector2.zero;
         private bool showNewParameterPopup;
@@ -34,12 +33,6 @@ namespace StateMachineMaker
         {
             GetController();
             if (controller == null || controller.stateMahineCount == 0) return;
-
-            for (int index = 0; index < stateMachine.stateCount; index++)
-            {
-                S state = stateMachine.GetState(index);
-                SyncNode(state, stateMachine);
-            }
         }
 
         private M stateMachine
@@ -89,18 +82,17 @@ namespace StateMachineMaker
             EditorGUILayout.EndHorizontal();
         }
 
-        private void OnStateMachineParameter()
+        private void OnStateMachineParameterGUI()
         {
-            if (parametorWindow == new Rect(0, 0, 0, 0))
+            var height = stateMachine.parameters.Count * 22 + 50;
+            Rect parametorWindow = new Rect(scrollPos.x, scrollPos.y + position.height - height, 300, height);
+            GUI.Window(int.MaxValue, parametorWindow, windowID =>
             {
-                parametorWindow = new Rect(0, Screen.height - 200, 300, 200);
-            }
-            parametorWindow = GUI.Window(int.MaxValue, parametorWindow, windowID =>
-            {
-                foreach (StateMachineParameter stateMachineParameter in stateMachine.parameters)
+                foreach (var stateMachineParameter in stateMachine.parameters)
                 {
-                    EditorGUILayout.BeginHorizontal(GUILayout.Width(parametorWindow.width * 0.9f));
-                    stateMachineParameter.name = GUILayout.TextField(stateMachineParameter.name);
+
+                    EditorGUILayout.BeginHorizontal(GUILayout.Width(parametorWindow.width * 0.95f));
+                    stateMachineParameter.name = GUILayout.TextField(stateMachineParameter.name, GUILayout.Width(100));
                     EditorGUI.BeginChangeCheck();
                     switch (stateMachineParameter.parameterType)
                     {
@@ -171,6 +163,11 @@ namespace StateMachineMaker
                         default:
                             break;
                     }
+                    if (GUILayout.Button("x", GUILayout.Width(20)))
+                    {
+                        stateMachine.DeleteParameter(stateMachineParameter);
+                        break;
+                    }
                     EditorGUILayout.EndHorizontal();
                 }
 
@@ -179,12 +176,9 @@ namespace StateMachineMaker
                     GUIContent.none);
                 if (showNewParameterPopup)
                 {
-                    if (genericMenu.GetItemCount() == 0)
-                        DisPlayParameterPopupMenu();
-                    genericMenu.ShowAsContext();
+                    DisPlayParameterPopupMenu();
                     showNewParameterPopup = false;
                 }
-                GUI.DragWindow(new Rect(0, 0, parametorWindow.width, 20));
             }, "Parameter");
         }
 
@@ -207,40 +201,27 @@ namespace StateMachineMaker
         {
             if (Event.current.type != EventType.Repaint)
                 return;
-            Profiler.BeginSample("DrawGrid");
-            HandleUtility.handleMaterial.SetPass(0);
-            GL.PushMatrix();
-            GL.Begin(1);
-            DrawGridLines(20, Color.black);
-            GL.End();
-            GL.PopMatrix();
-            Profiler.EndSample();
+            DrawGridLines(12, EditorGUIUtility.isProSkin ? new Color32(32, 32, 32, 255) : new Color32(60, 60, 60, 255));
+            DrawGridLines(120, Color.black);
         }
+
 
         private void DrawGridLines(float gridSize, Color gridColor)
         {
             float xMax = position.width * 5, xMin = 0, yMax = position.height * 5, yMin = 0;
             Handles.color = gridColor;
-            GL.Color(gridColor);
             float x = xMin - xMin % gridSize;
-            while (x < (double)xMax)
+            while (x < xMax)
             {
-                DrawLine(new Vector2(x, yMin), new Vector2(x, yMax));
+                Handles.DrawLine(new Vector2(x, yMin), new Vector2(x, yMax));
                 x += gridSize;
             }
-            GL.Color(gridColor);
             float y = yMin - yMin % gridSize;
-            while (y < (double)yMax)
+            while (y < yMax)
             {
-                DrawLine(new Vector3(xMin, y, -1), new Vector3(xMax, y, 1));
+                Handles.DrawLine(new Vector3(xMin, y), new Vector3(xMax, y));
                 y += gridSize;
             }
-        }
-
-        private void DrawLine(Vector3 p1, Vector3 p2)
-        {
-            GL.Vertex(p1);
-            GL.Vertex(p2);
         }
 
         /// <summary>
@@ -250,6 +231,98 @@ namespace StateMachineMaker
         private void OnGUI()
         {
             Event e = Event.current;
+            if (!string.IsNullOrEmpty(e.commandName))
+            {
+                CommandEvent();
+            }
+
+            if (Event.current.type == EventType.MouseDrag)
+            {
+                if (preDragging)
+                {
+                    RegisterUndo("Moved State Position", controller);
+                    preDragging = false;
+                }
+            }
+
+            if (isClicked)
+            {
+                S[] states = stateMachine.GetAllStates().Where(s => s != null).Where(IsClicked).ToArray();
+
+                if (states.Length == 0)
+                {
+                    forcusedStates = new S[0];
+                }
+                else
+                {
+                    if (Event.current.command || Event.current.shift)
+                    {
+                        var objects = new List<Object>();
+                        if (!forcusedStates.Contains(states[0]))
+                        {
+                            ArrayUtility.Add(ref forcusedStates, states[0]);
+                            objects.AddRange(Selection.objects);
+                            objects.Add(nodes[states[0]]);
+                        }
+                        else
+                        {
+                            ArrayUtility.Remove(ref forcusedStates, states[0]);
+                            objects.AddRange(Selection.objects);
+                            objects.Remove(nodes[states[0]]);
+                        }
+                        if (objects.Count != 0)
+                            Selection.objects = objects.ToArray();
+                    }
+                    else
+                    {
+                        if (forcusedStates.Length <= 1 || !forcusedStates.Contains(states[0]))
+                        {
+                            forcusedStates = new[] { states[0] };
+                            Selection.activeObject = nodes[states[0]];
+                        }
+                    }
+                }
+                Repaint();
+            }
+
+            if (!controller)
+            {
+                GUIUtility.ExitGUI();
+                return;
+            }
+
+
+            if (e.type == EventType.Repaint)
+            {
+                Styles.BackgroudStyle.Draw(new Rect(0, ToolbarHeight, position.width, position.height - ToolbarHeight),
+                    false, false, false, false);
+                DrawGrid();
+            }
+
+
+            if (stateMachine != null)
+            {
+                scrollPos = GUI.BeginScrollView(new Rect(0, 0, position.width, position.height), scrollPos,
+                    new Rect(0, 0, position.width * 2f, position.height * 2f), false, false);
+                OnGraphGUI();
+                GUI.EndScrollView();
+            }
+            if (e.type == EventType.Repaint)
+                EditorStyles.toolbarButton.Draw(new Rect(0, 0, position.width, ToolbarHeight), false, false, false,
+                    false);
+            OnToolbarGUI(stateMachine);
+
+            if (stateMachine.GetAllStates().Count != nodes.Count)
+            {
+                SyncNode(stateMachine);
+            }
+
+        }
+
+        private void CommandEvent()
+        {
+            Event e = Event.current;
+
             if (e.type == EventType.ValidateCommand)
             {
                 long now = DateTime.Now.Ticks;
@@ -290,81 +363,6 @@ namespace StateMachineMaker
                 }
                 lastCommandTime = now;
             }
-            if (Event.current.type == EventType.MouseDrag)
-            {
-                if (preDragging)
-                {
-                    RegisterUndo("Moved State Position", controller);
-                    preDragging = false;
-                }
-            }
-
-            if (isClicked)
-            {
-                S[] states = stateMachine.GetAllStates().Where(s => s != null).Where(IsClicked).ToArray();
-                if (states.Length == 0)
-                {
-                    forcusedStates = new S[0];
-                }
-                else
-                {
-                    if (Event.current.command || Event.current.shift)
-                    {
-                        var objects = new List<Object>();
-                        if (!forcusedStates.Contains(states[0]))
-                        {
-                            ArrayUtility.Add(ref forcusedStates, states[0]);
-                            objects.AddRange(Selection.objects);
-                            objects.Add(nodes[states[0]]);
-                        }
-                        else
-                        {
-                            ArrayUtility.Remove(ref forcusedStates, states[0]);
-                            objects.AddRange(Selection.objects);
-                            objects.Remove(nodes[states[0]]);
-                        }
-                        if (objects.Count != 0)
-                            Selection.objects = objects.ToArray();
-                    }
-                    else
-                    {
-                        if (forcusedStates.Length <= 1 || !forcusedStates.Contains(states[0]))
-                        {
-                            forcusedStates = new[] { states[0] };
-                            Selection.objects =
-                                new[] { states[0] }.Where(nodes.ContainsKey).Select(s => nodes[s]).ToArray();
-                        }
-                    }
-                }
-                Repaint();
-            }
-
-            if (!controller)
-            {
-                GUIUtility.ExitGUI();
-                return;
-            }
-
-
-            if (e.type == EventType.Repaint)
-            {
-                Styles.BackgroudStyle.Draw(new Rect(0, ToolbarHeight, position.width, position.height - ToolbarHeight),
-                    false, false, false, false);
-                DrawGrid();
-            }
-
-
-            if (stateMachine != null)
-            {
-                scrollPos = GUI.BeginScrollView(new Rect(0, 0, position.width, position.height), scrollPos,
-                    new Rect(0, 0, position.width * 2f, position.height * 2f), false, false);
-                OnGraphGUI();
-                GUI.EndScrollView();
-            }
-            if (e.type == EventType.Repaint)
-                EditorStyles.toolbarButton.Draw(new Rect(0, 0, position.width, ToolbarHeight), false, false, false,
-                    false);
-            OnToolbarGUI(stateMachine);
         }
 
         private bool IsClicked(S state)
@@ -381,17 +379,16 @@ namespace StateMachineMaker
         protected virtual void OnGraphGUI()
         {
             BeginWindows();
-            OnStateMachineParameter();
+            OnStateMachineParameterGUI();
             DrawTransitions();
             for (int index = 0; index < stateMachine.stateCount; index++)
             {
                 S state = stateMachine.GetState(index);
 
-                SyncNode(state, stateMachine);
-
                 StateColor stateColor = state.isDefault ? StateColor.Orange : state.color;
 
                 bool on = forcusedStates.Contains(state);
+
                 if (EditorApplication.isPlaying && stateMachine.currentState == state && !state.isDefault)
                 {
                     stateColor = StateColor.Aqua;
@@ -421,9 +418,11 @@ namespace StateMachineMaker
                     {
                         Save();
                     }
-                    DisPlayStatePopupMenu(_state);
+                    if (Event.current.button == 1 && Event.current.isMouse)
+                    {
+                        DisPlayStatePopupMenu(_state);
+                    }
                     GUI.DragWindow();
-                    //                Debug.Log("click " + (Event.current.type == EventType.ContextClick));
                 }, state.stateName, nodeStyle);
 
                 pos.x = Mathf.Clamp(pos.x, -pos.width * 0.5f, float.MaxValue);
@@ -465,15 +464,19 @@ namespace StateMachineMaker
                 }
             }
 
-
-            DisPlayStateMachinePopupMenu();
+            if (Event.current.type == EventType.ContextClick)
+            {
+                DisPlayStateMachinePopupMenu();
+            }
         }
 
-        private void SyncNode(S state, M stateMachine)
+        private void SyncNode(M stateMachine)
         {
-            if (!nodes.ContainsKey(state))
+            var states = stateMachine.GetAllStates();
+            nodes = new Dictionary<S, StateNode>();
+            foreach (var state in states)
             {
-                var stateNode = ScriptableObject.CreateInstance<StateNode>();
+                var stateNode = CreateInstance<StateNode>();
                 stateNode.stateID = state.uniqueID;
                 stateNode.stateMachine = stateMachine;
                 nodes.Add(state, stateNode);
@@ -485,17 +488,17 @@ namespace StateMachineMaker
         {
             for (int i = 0; i < stateMachine.transitionCount; i++)
             {
-                T blendShapeTransition = stateMachine.GetTransition(i);
+                T transition = stateMachine.GetTransition(i);
 
-                if (blendShapeTransition == null)
+                if (transition == null)
                 {
                     RegisterUndo("Removed Transition");
                     stateMachine.RemoveTransition(i);
                     break;
                 }
-                DrawTransition(stateMachine.UniqueIDToState(blendShapeTransition.fromStateUniqueID),
-                    stateMachine.UniqueIDToState(blendShapeTransition.toStateNameUniqueID),
-                    blendShapeTransition.selected);
+                var start = stateMachine.UniqueIDToState(transition.fromStateUniqueID);
+                var end = stateMachine.UniqueIDToState(transition.toStateNameUniqueID);
+                DrawTransition(start, end, transition.selected);
             }
         }
 
@@ -530,13 +533,15 @@ namespace StateMachineMaker
             DrawNodeCurve(startMakeTransition.position, new Rect(pos.x, pos.y, 0, 0));
         }
 
+        private float progress = 0;
+
         private void DrawNodeCurve(Rect start, Rect end, bool selected = false)
         {
+
             var startPos = new Vector3(start.x + start.width / 2, start.y + start.height * 0.5f, 0);
             var endPos = new Vector3(end.x + end.width / 2, end.y + end.height * 0.5f, 0);
             Handles.color = selected ? Color.red : Color.white;
             Vector3 cross = Vector3.Cross((startPos - endPos).normalized, Vector3.forward);
-            startPos += cross * 5;
             Vector3 vector = endPos - startPos;
             Vector3 direction = vector.normalized;
             Vector3 center = vector * 0.5f + startPos;
@@ -556,169 +561,170 @@ namespace StateMachineMaker
                 arraws.AddRange(arraowPos);
             }
 
-
+            if (selected)
+            {
+                Handles.color = Color.red;
+            }
+            if (1 <= progress)
+            {
+                progress = 0;
+            }
+            progress += 0.04f;
+            if (moveFromState != null && moveToState != null)
+            {
+                Rect _start = moveFromState.position, _end = moveToState.position;
+                var _startPos = new Vector3(_start.x + _start.width / 2, _start.y + _start.height * 0.5f, 0);
+                var _endPos = new Vector3(_end.x + _end.width / 2, _end.y + _end.height * 0.5f, 0);
+                var progpos1 = Vector3.Lerp(_startPos, _endPos, progress);
+                Vector3 progpos2 = new Vector3(progpos1.x, progpos1.y + 50);
+                Vector3 progpos3 = new Vector3(progpos1.x, progpos1.y - 50);
+                Handles.DrawPolyLine(progpos1, progpos2, progpos3);
+                if (1 <= progress)
+                {
+                    moveFromState = null;
+                    moveToState = null;
+                }
+            }
             Handles.DrawAAPolyLine(EditorGUIUtility.whiteTexture, 2f, new[] { startPos, endPos });
             Handles.DrawAAPolyLine(EditorGUIUtility.whiteTexture, 2f, arraws.ToArray());
+            Repaint();
         }
 
+        public void DrawTransitionMove(S from, S to)
+        {
+            moveFromState = from;
+            moveToState = to;
+            progress = 0f;
+        }
+
+        private S moveFromState, moveToState;
         private void DisPlayStateMachinePopupMenu()
         {
-            if (Event.current.type == EventType.ContextClick)
-            {
+            var contents = new[]
+                {
+                     new ContentItem{content ="Add State",userData =  Event.current.mousePosition},
+                     new ContentItem{content = "Paste",disabled = !(cutStates != null || copyStates != null)}
+                };
 
-                genericMenu = new GenericMenu();
-                genericMenu.AddItem(new GUIContent("Add State"), false, (userData) => StateContextMenu(userData, new[] { "Add State" }, 0), Event.current.mousePosition);
-                if (cutStates != null || copyStates != null)
-                {
-                    genericMenu.AddItem(new GUIContent("Paste"), false, () =>
-                    {
-                        if (copyStates != null || cutStates != null)
-                        {
-                            DuplicatedState(copyStates ?? cutStates);
-                            copyStates = null;
-                            cutStates = null;
-                        }
-                    });
-                }
-                else
-                {
-                    genericMenu.AddDisabledItem(new GUIContent("Paste"));
-                }
-                genericMenu.ShowAsContext();
-                Event.current.Use();
-            }
+            ShowGenericMenu(contents);
         }
 
         private void DisPlayParameterPopupMenu()
         {
-            var options = new[]
+            var contents = new[]
             {
-                new GUIContent("String"),
-                new GUIContent("Bool"),
-                new GUIContent("Int"),
-                new GUIContent("Float"),
-                new GUIContent("Vector2"),
-                new GUIContent("Vector3")
+                new ContentItem{content = "String"},
+                new ContentItem{content = "Bool"},
+                new ContentItem{content = "Int"},
+                new ContentItem{content = "Float"},
+                new ContentItem{content = "Vector2"},
+                new ContentItem{content = "Vector3"}
             };
-            genericMenu = new GenericMenu();
-            foreach (GUIContent guiContent in options)
-            {
-                genericMenu.AddItem(guiContent, false, obj =>
+            ShowGenericMenu(contents);
+        }
+        private void DisPlayStatePopupMenu(S state)
+        {
+            var contents = new[]
                 {
-                    RegisterUndo("New Parameter");
-                    switch ((string)obj)
+                   new ContentItem{content = "Make Transition",userData = state},
+                   new ContentItem{content = "Set Default",userData = state},
+                   new ContentItem{content = "",userData = state},
+                   new ContentItem{content = "Duplicate State",userData = state},
+                   new ContentItem{content = "Delete State",userData = state}
+                };
+            ShowGenericMenu(contents);
+
+        }
+
+        private void ShowGenericMenu(params ContentItem[] contents)
+        {
+            var menu = new GenericMenu();
+            foreach (var item in contents)
+            {
+                if (item.disabled)
+                {
+                    menu.AddDisabledItem(new GUIContent(item.content));
+                    continue;
+                }
+
+                menu.AddItem(new GUIContent(item.content), false, obj =>
+                {
+                    var _item = (ContentItem)obj;
+                    S state;
+                    switch (_item.content)
                     {
                         case "String":
-                            stateMachine.SetString("New String", "");
+                            stateMachine.CreateParameter("New String", ParameterType.String);
                             break;
                         case "Bool":
-                            stateMachine.SetBool("New Bool", false);
+                            stateMachine.CreateParameter("New Bool", ParameterType.Bool);
                             break;
                         case "Int":
-                            stateMachine.SetInt("New Int", 0);
+                            stateMachine.CreateParameter("New Int", ParameterType.Int);
                             break;
                         case "Float":
-                            stateMachine.SetFloat("New Float", 0.0f);
+                            stateMachine.CreateParameter("New Float", ParameterType.Float);
                             break;
                         case "Vector2":
-                            stateMachine.SetVector2("New Vector2", Vector2.zero);
+                            stateMachine.CreateParameter("New Vector2", ParameterType.Vector2);
                             break;
                         case "Vector3":
-                            stateMachine.SetVector3("New Vector3", Vector3.zero);
+                            stateMachine.CreateParameter("New Vector3", ParameterType.Vector3);
+                            break;
+                        case "Make Transition":
+                            state = _item.userData as S;
+                            if (state == null) return;
+                            forcusedStates = new[] { state };
+                            Selection.objects = new[] { nodes[state] };
+                            startMakeTransition = state;
+                            break;
+                        case "Add State":
+                            RegisterUndo("Added State");
+                            S s = stateMachine.AddState("New State");
+                            stateMachine.SetPosition(s, (Vector2)_item.userData);
+                            break;
+                        case "Set Default":
+
+                            state = _item.userData as S;
+                            if (state == null) return;
+                            RegisterUndo("Change Default");
+                            stateMachine.SetDefault(state);
+                            break;
+                        case "Duplicate State":
+                            state = _item.userData as S;
+                            if (state == null) return;
+                            DuplicatedState(state);
+                            break;
+                        case "Delete State":
+                            state = _item.userData as S;
+                            if (state == null) return;
+                            DeletedState(state);
+                            break;
+                        case "Paste":
+                            if (copyStates != null || cutStates != null)
+                            {
+                                DuplicatedState(copyStates ?? cutStates);
+                                copyStates = null;
+                                cutStates = null;
+                            }
                             break;
                     }
                     Save();
-                }, guiContent.text);
+                }, item);
             }
+            menu.ShowAsContext();
+            Event.current.Use();
         }
-
         public static void RegisterUndo(string undoName, StateMachineController<M, S, T> _controller = null)
         {
-            if (_controller)
-            {
-                Undo.RegisterUndo(_controller, undoName);
-            }
-            else
-            {
-                Undo.RegisterUndo(controller, undoName);
-            }
+            Undo.RegisterUndo(_controller ?? controller, undoName);
         }
 
-        public static void Save()
+        public void Save()
         {
-            EditorUtility.SetDirty(controller);
+            if (controller)
+                EditorUtility.SetDirty(controller);
             AssetDatabase.SaveAssets();
-        }
-
-        private void DisPlayStatePopupMenu(S state)
-        {
-            if (Event.current.button == 1 && Event.current.isMouse)
-            {
-                var options = new[]
-                {
-                    new GUIContent("Make Transition"),
-                    new GUIContent("Set Default"),
-                    new GUIContent(""),
-                    new GUIContent("Duplicate State"),
-                    new GUIContent("Delete State")
-                };
-                genericMenu = new GenericMenu();
-                foreach (var guiContent in options)
-                {
-                    genericMenu.AddItem(guiContent, false, (userData) => StateContextMenu(userData, new[] { guiContent.text }, 0), state);
-                }
-                genericMenu.ShowAsContext();
-                Event.current.Use();
-            }
-        }
-
-        /// <summary>
-        ///     すべてのContextMenuの動作はここで定義する
-        ///     FEATURE 後々は分けたほうがいいかも...
-        /// </summary>
-        /// <param name="userData"></param>
-        /// <param name="options"></param>
-        /// <param name="selected"></param>
-        private void StateContextMenu(object userData, string[] options, int selected)
-        {
-            S state = null;
-            switch (options[selected])
-            {
-                case "Make Transition":
-                    state = userData as S;
-                    if (state == null) return;
-                    forcusedStates = new[] { state };
-                    Selection.objects = new[] { nodes[state] };
-                    startMakeTransition = state;
-                    break;
-                case "Add State":
-                    RegisterUndo("Added State");
-                    S s = stateMachine.AddState("New State");
-                    stateMachine.SetPosition(s, (Vector2)userData);
-                    break;
-                case "Set Default":
-
-                    state = userData as S;
-                    if (state == null) return;
-                    RegisterUndo("Change Default");
-                    stateMachine.SetDefault(state);
-                    break;
-                case "Duplicate State":
-                    state = userData as S;
-                    if (state == null) return;
-                    DuplicatedState(state);
-                    break;
-                case "Delete State":
-                    state = userData as S;
-                    if (state == null) return;
-                    DeletedState(state);
-                    break;
-
-                default:
-                    break;
-            }
-            Save();
-            Repaint();
         }
 
         private void DeletedState(params S[] states)
@@ -775,8 +781,15 @@ namespace StateMachineMaker
             Paste,
             Cut,
             Delete,
-            SelectAll,
+            SelectAll
         }
+    }
+
+    class ContentItem
+    {
+        public string content;
+        public object userData;
+        public bool disabled;
     }
 #if !UNITY_3_5
 }
