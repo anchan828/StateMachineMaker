@@ -28,7 +28,7 @@ namespace StateMachineMaker
         private static void Load()
         {
             sprites = new Dictionary<string, Sprite>();
-            string[] loadAllAssetsAtPath = Directory.GetFiles("Assets/Editor/Images/");
+            string[] loadAllAssetsAtPath = Directory.GetFiles("Assets/StateMachineMaker/Editor/Images/");
             foreach (string key in loadAllAssetsAtPath)
             {
                 string spriteName = Path.GetFileNameWithoutExtension(key);
