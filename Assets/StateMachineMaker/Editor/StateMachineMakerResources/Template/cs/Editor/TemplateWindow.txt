@@ -1,0 +1,14 @@
+﻿#if !UNITY_3_5
+using StateMachineMaker;
+using StateMachineMaker.Editor;
+#endif
+using UnityEditor;
+
+public class #NAME#Window : StateMachineWindow<#NAME#StateMachine, #NAME#State, #NAME#Transition>
+{
+    [MenuItem("Window/#NAME#Window")]
+    private static void Open()
+    {
+        GetWindow<ExampleWindow>();
+    }
+}

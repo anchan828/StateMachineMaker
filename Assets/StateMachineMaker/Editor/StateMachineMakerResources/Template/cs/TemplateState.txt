@@ -1,0 +1,10 @@
+﻿using System;
+#if !UNITY_3_5
+using StateMachineMaker;
+#endif
+using UnityEngine;
+
+[Serializable]
+public class #NAME#State : State
+{
+}
