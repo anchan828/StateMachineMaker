@@ -1,8 +1,8 @@
-﻿#if !UNITY_3_5
-using StateMachineMaker;
+﻿using NUnit.Framework;
+#if !UNITY_3_5
+namespace StateMachineMaker.Editor 
+{
 #endif
-using NUnit.Framework;
-
 [TestFixture]
 public class StateMachineTest
 {
@@ -103,3 +103,6 @@ public class StateMachineTest
         Assert.AreEqual(blendShapeTransition.name, "from-to 1");
     }
 }
+#if !UNITY_3_5
+}
+#endif

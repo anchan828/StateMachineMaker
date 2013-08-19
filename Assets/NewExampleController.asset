@@ -1,0 +1,127 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6985f3a873a424fa59d367bb6d7337b4, type: 3}
+  m_Name: NewExampleController
+  m_EditorClassIdentifier: 
+  stateMachines:
+  - states:
+    - color: 3
+      isDefault: 0
+      position:
+        serializedVersion: 2
+        x: 506
+        y: 243
+        width: 200
+        height: 100
+      stateName: New State
+      uniqueID: 2ffe8274-5cc8-47b9-aa08-c5370aa85f8a
+      hogehooge: 
+      texture: {fileID: 0}
+    - color: 1
+      isDefault: 0
+      position:
+        serializedVersion: 2
+        x: 883
+        y: 111
+        width: 200
+        height: 100
+      stateName: New State 1
+      uniqueID: 6769f30d-79e0-4e3a-8a41-b059f31e949c
+      hogehooge: 
+      texture: {fileID: 0}
+    - color: 3
+      isDefault: 0
+      position:
+        serializedVersion: 2
+        x: 275
+        y: 207
+        width: 200
+        height: 100
+      stateName: New State 2
+      uniqueID: 33119547-849d-42ce-a33e-2153a1605dfd
+      hogehooge: 
+      texture: {fileID: 0}
+    - color: 3
+      isDefault: 0
+      position:
+        serializedVersion: 2
+        x: 772
+        y: 280
+        width: 200
+        height: 100
+      stateName: New State 3
+      uniqueID: 46ef7acf-2060-473a-abef-d5e2f8c15c8c
+      hogehooge: 
+      texture: {fileID: 0}
+    transitions: []
+    name: NewStateMachine
+    parameters: []
+    style:
+      m_Name: 
+      m_Normal:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Hover:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Active:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Focused:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnNormal:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnHover:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnActive:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_OnFocused:
+        m_Background: {fileID: 0}
+        m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+      m_Border:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Margin:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Padding:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Overflow:
+        m_Left: 0
+        m_Right: 0
+        m_Top: 0
+        m_Bottom: 0
+      m_Font: {fileID: 0}
+      m_FontSize: 0
+      m_FontStyle: 0
+      m_Alignment: 0
+      m_WordWrap: 0
+      m_RichText: 1
+      m_TextClipping: 0
+      m_ImagePosition: 0
+      m_ContentOffset: {x: 0, y: 0}
+      m_FixedWidth: 0
+      m_FixedHeight: 0
+      m_StretchWidth: 1
+      m_StretchHeight: 0
+    uniqueID: 644b6514-08f4-48fb-ad7a-cd0a84334b94
+  selectedStateMachine: 0
