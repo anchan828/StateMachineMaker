@@ -3,10 +3,10 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 #if !UNITY_3_5
-namespace StateMachineMaker
+namespace StateMachineMaker.Editor
 {
 #endif
-    public class StateInspector<M, S, TS> : Editor
+    public class StateInspector<M, S, TS> : UnityEditor.Editor
         where M : StateMachine<S, TS>
         where TS : Transition
         where S : State

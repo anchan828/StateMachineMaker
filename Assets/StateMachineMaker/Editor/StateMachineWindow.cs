@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 #if !UNITY_3_5
-namespace StateMachineMaker
+namespace StateMachineMaker.Editor
 {
 #endif
     /// <summary>
@@ -224,12 +224,104 @@ namespace StateMachineMaker
             }
         }
 
+        private Vector2 dragPos;
+        private List<Vector3[]> drawRect = new List<Vector3[]>();
+        private void DrawRectabgle()
+        {
+            Event e = Event.current;
+            if (e.type == EventType.MouseDrag)
+            {
+                Vector2 mousePos = e.mousePosition;
+
+                if (dragPos == Vector2.zero)
+                {
+                    dragPos = mousePos;
+                }
+
+                Vector3[] vector3s = new Vector3[]
+                {
+                    mousePos, new Vector2(dragPos.x, mousePos.y), dragPos,
+                    new Vector2(mousePos.x, dragPos.y)
+                };
+                drawRect.Add(vector3s);
+                Repaint();
+            }
+
+
+
+            if (e.type == EventType.Repaint)
+            {
+                if (drawRect.Count != 0)
+                {
+                    DrawSolidRectangleWithOutline(drawRect[0], new Color32(90, 105, 126, 255), Color.white);
+
+                    Rect rect = Vector3sToRect(drawRect[0]);
+                    foreach (S state in stateMachine.GetAllStates())
+                    {
+                        Rect pos = state.position;
+                        if (rect.Contains(pos))
+                        {
+                            if (!forcusedStates.Contains(state))
+                                ArrayUtility.Add(ref forcusedStates, state);
+                        }
+                    }
+
+                    if (drawRect.Count != 1)
+                        drawRect.RemoveAt(0);
+
+                    Repaint();
+                }
+            }
+            if (e.type == EventType.MouseUp)
+            {
+                drawRect = new List<Vector3[]>();
+                dragPos = Vector2.zero;
+            }
+        }
+
+        private Rect Vector3sToRect(Vector3[] vactor3s)
+        {
+            float left = scrollPos.x + (vactor3s[2].x - vactor3s[0].x > 0 ? vactor3s[0].x : vactor3s[2].x);
+            float top = scrollPos.y + (vactor3s[2].y - vactor3s[0].y > 0 ? vactor3s[0].y : vactor3s[3].y);
+            float width = Mathf.Abs(vactor3s[1].x - vactor3s[0].x);
+            float height = Mathf.Abs(vactor3s[2].y - vactor3s[1].y);
+            return new Rect(left, top, width, height);
+        }
+
+        private void DrawSolidRectangleWithOutline(Vector3[] verts, Color faceColor, Color outlineColor)
+        {
+            GL.PushMatrix();
+
+            GL.Begin(GL.TRIANGLES);
+            GL.Color(faceColor);
+            GL.Vertex(verts[0]);
+            GL.Vertex(verts[1]);
+            GL.Vertex(verts[2]);
+            GL.Vertex(verts[0]);
+            GL.Vertex(verts[2]);
+            GL.Vertex(verts[3]);
+            GL.End();
+
+            GL.Begin(GL.LINES);
+            GL.Color(outlineColor);
+            for (int i = 0; i < 4; i++)
+            {
+                GL.Vertex(verts[i]);
+                GL.Vertex(verts[(i + 1) % 4]);
+            }
+            GL.End();
+            GL.PopMatrix();
+
+        }
+
         /// <summary>
         ///     OnGUIは触らないほうがいいと思う
         ///     OnGUIの中をいじるのであればOnGraphGUIやOnStateGUIを使用する
         /// </summary>
         private void OnGUI()
         {
+
+            Profiler.BeginSample("StateMachineMaker");
             Event e = Event.current;
             if (!string.IsNullOrEmpty(e.commandName))
             {
@@ -316,6 +408,10 @@ namespace StateMachineMaker
             {
                 SyncNode(stateMachine);
             }
+
+
+            DrawRectabgle();
+            Profiler.EndSample();
 
         }
 
@@ -790,6 +886,17 @@ namespace StateMachineMaker
         public string content;
         public object userData;
         public bool disabled;
+    }
+
+
+    public static class RectExtensions
+    {
+        public static bool Contains(this Rect self, Rect rect)
+        {
+            return self.Contains(new Vector2(rect.x, rect.y)) || self.Contains(new Vector2(rect.x + rect.width, rect.y)) ||
+                   self.Contains(new Vector2(rect.x + rect.width, rect.y + rect.height)) ||
+                   self.Contains(new Vector2(rect.x, rect.y + rect.height));
+        }
     }
 #if !UNITY_3_5
 }

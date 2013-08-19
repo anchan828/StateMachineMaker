@@ -2,11 +2,11 @@
 using UnityEngine;
 using Object = System.Object;
 #if !UNITY_3_5
-namespace StateMachineMaker
+namespace StateMachineMaker.Editor
 {
 #endif
     [CustomEditor(typeof (StateMachineController<StateMachine<State, Transition>, State, Transition>))]
-    public class StateMachineControllerInspector : Editor
+    public class StateMachineControllerInspector : UnityEditor.Editor
     {
         /// <summary>
         ///     Button以外でクリックされたときにtrueを返す

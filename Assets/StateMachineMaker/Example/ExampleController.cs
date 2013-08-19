@@ -8,14 +8,14 @@ using UnityEditor;
 #endif
 
 [Serializable]
-public class ExampleStateMachineController :
+public class ExampleController :
     StateMachineController<ExampleStateMachine, ExampleState, ExampleTransition>
 {
 #if UNITY_EDITOR
-    [MenuItem("Assets/Create/ExampleStateMachineController")]
+    [MenuItem("Assets/Create/ExampleController")]
     private static void Create()
     {
-        CreateAssets<ExampleStateMachineController>();
+        CreateAssets<ExampleController>();
     }
 #endif
 }

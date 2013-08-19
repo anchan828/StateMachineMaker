@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
+
 #if !UNITY_3_5
-namespace StateMachineMaker
+namespace StateMachineMaker.Editor
 {
 #endif
+
     public class Styles
     {
         private static Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
-
         public static GUIStyle BackgroudStyle
         {
             get
@@ -28,13 +32,16 @@ namespace StateMachineMaker
         private static void Load()
         {
             sprites = new Dictionary<string, Sprite>();
-            string[] loadAllAssetsAtPath = Directory.GetFiles("Assets/StateMachineMaker/Editor/Images/");
-            foreach (string key in loadAllAssetsAtPath)
+            var textures = StateMachineMakerResources.LoadAssetBundleResources("Images",typeof(Texture2D));
+            
+            foreach (Texture2D texture in textures)
             {
-                string spriteName = Path.GetFileNameWithoutExtension(key);
-                sprites.Add(spriteName, new Sprite(key));
+                texture.hideFlags = HideFlags.DontSave;
+                sprites.Add(texture.name, new Sprite(texture));
             }
         }
+
+       
 
         public static GUIStyle GetStateStyle(StateColor stateColor, bool on)
         {
@@ -42,6 +49,7 @@ namespace StateMachineMaker
             {
                 Load();
             }
+           
             string key = stateColor.ToString().ToLower();
 
             if (on)
@@ -55,14 +63,14 @@ namespace StateMachineMaker
         {
             public GUIStyle style;
 
-            public Sprite(string path)
+            public Sprite(Texture2D texture)
             {
                 style = new GUIStyle();
                 style.border = new RectOffset(11, 11, 11, 15);
                 style.padding = new RectOffset(0, 0, 29, 0);
                 style.overflow = new RectOffset(7, 7, 6, 9);
                 style.alignment = TextAnchor.UpperCenter;
-                style.normal.background = AssetDatabase.LoadAssetAtPath(path, typeof (Texture2D)) as Texture2D;
+                style.normal.background = texture;
                 style.contentOffset = new Vector2(0, -22);
             }
         }

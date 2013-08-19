@@ -2,7 +2,7 @@
 using UnityEngine;
 
 #if !UNITY_3_5
-namespace StateMachineMaker
+namespace StateMachineMaker.Editor
 {
 #endif
     public class StateNode : ScriptableObject

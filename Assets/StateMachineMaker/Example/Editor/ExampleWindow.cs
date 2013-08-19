@@ -1,4 +1,5 @@
 ﻿#if !UNITY_3_5
+using StateMachineMaker.Editor;
 using StateMachineMaker;
 #endif
 using UnityEditor;

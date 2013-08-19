@@ -6,4 +6,5 @@ using StateMachineMaker;
 [Serializable]
 public class ExampleTransition : Transition
 {
+
 }

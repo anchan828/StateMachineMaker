@@ -1,5 +1,5 @@
 ﻿#if !UNITY_3_5
-using StateMachineMaker;
+using StateMachineMaker.Editor;
 #endif
 using UnityEditor;
 using UnityEngine;

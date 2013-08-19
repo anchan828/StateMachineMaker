@@ -6,7 +6,7 @@ using StateMachineMaker;
 using UnityEngine;
 
 public class ExampleStateMachineMonoBehavior
-    : StateMachineMonoBehaviour<ExampleStateMachineController,
+    : StateMachineMonoBehaviour<ExampleController,
         ExampleStateMachine,
         ExampleState,
         ExampleTransition>
